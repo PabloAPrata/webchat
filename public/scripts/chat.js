@@ -1,3 +1,4 @@
+
 const myUser = {
   name: "Pablo Prata",
   number: "9992480831",
@@ -37,6 +38,8 @@ function ajax(config) {
 
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
+
+
 
 function update_opened_chat(id, msg) {
   if (id === undefined) return;

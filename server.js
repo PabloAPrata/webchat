@@ -6,16 +6,16 @@ const socketio = require("socket.io");
 const bodyParser = require("body-parser");
 
 const routes = require("./utils/routes");
-const config = require("./utils/routes");
+const config = require("./utils/config");
 
 class Server {
   constructor() {
-    this.port = process.env.PORT || 80;
-    this.host = "localhost";
+    this.port = process.env.PORT || 3000;
+    this.host = `localhost`;
 
     this.app = express();
     this.http = http.Server(this.app);
-    this.socket = socket = socketio(this.http);
+    this.socket = socketio(this.http);
   }
 
   appConfig() {
@@ -33,11 +33,8 @@ class Server {
     this.appConfig();
     this.includeRoutes();
 
-    this.http.listen(this.port, this.host, (err) => {
-      if (err) {
-        return console.log("Error listening");
-      }
-      console.log(`Listening on http://${this.port}`);
+    this.http.listen(this.port, this.host, () => {
+      console.log(`Listening on http://${this.host}:${this.port}`);
     });
   }
 }

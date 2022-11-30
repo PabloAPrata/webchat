@@ -1,3 +1,5 @@
+"use strict";
+
 class Routes {
   constructor(app, socket) {
     this.app = app;
@@ -8,13 +10,14 @@ class Routes {
   }
 
   appRoutes() {
-    this.app.get("/", (req, res) => {
-      response.render("chat");
+    this.app.get("/", (request, response) => {
+        response.render("index");
     });
   }
 
   socketEvents() {
     this.io.on("connection", (socket) => {
+
       socket.on("username", (username) => {
         console.log("Um novo usuário" + username);
         this.users.push({

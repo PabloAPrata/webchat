@@ -1,5 +1,6 @@
 class Config {
   constructor(app, express) {
+
     // Definindo .html como extensão de modelo padrão
     app.set("view engine", "html");
 

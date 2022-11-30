@@ -4,7 +4,6 @@
   "description": "A real-time chat",
   "main": "server.js",
   "scripts": {
-    "test": "",
     "start": "nodemon server.js"
   },
   "repository": {
