@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Converse | Seu ligar para papear e ficar de boa.</title>
+
+    <link rel="stylesheet" href="styles/login.css" />
+  </head>
+  <body>
+    <div class="welcome-login">
+        <div class="container-login">
+            <header class="header">
+                <h1>Bem vindo(a) ao Converse!</h1>
+                <p>Uma nova era de mensagens</p>
+            </header>
+            <form action="/home" class="form-login" method="post">
+                <div class="container-input">
+                    <div class="container-label">
+                        <label for="number">Número de telefone</label>
+                    </div>
+                    <input id="number-input" class="text-input" type="text" name="number" required>
+                </div>
+                <div class="container-input">
+                    <div class="container-label">
+                        <label for="password">Senha</label>
+                    </div>
+                    <input id="password-input" class="text-input" type="password" name="password" required>
+                </div>
+                <input id="login-button" class="login-button" type="submit" value="Entrar">
+            </form>
+        </div>
+    </div>
+
+
+  </body>
+</html>
