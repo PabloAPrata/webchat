@@ -1,3 +1,5 @@
+require('dotenv').config
+
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
@@ -31,7 +33,10 @@ class Server {
     this.appConfig();
     this.includeRoutes();
 
-    this.http.listen(this.port, this.host, () => {
+    this.http.listen(this.port, this.host, (err) => {
+      if (err) {
+        return console.log("Error listening");
+      }
       console.log(`Listening on http://${this.port}`);
     });
   }

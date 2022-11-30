@@ -37,19 +37,6 @@ function ajax(config) {
 
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
-// ---------------------------------------
-
-//----------------------------------------------------------------
-// É OQ FARÁ COM A MENSAGEM RECEBIDA
-const socket = io();
-socket.on("connect", () => {
-  socket.emit("msg", "I am connected " + socket.id);
-});
-socket.on("msg", (msg) => {
-  update_opened_chat(msg.chat_id, msg);
-});
-//----------------------------------------------------------------
- // Check if has
 
 function update_opened_chat(id, msg) {
   if (id === undefined) return;

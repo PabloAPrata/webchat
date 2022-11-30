@@ -9,7 +9,7 @@ class Routes {
 
   appRoutes() {
     this.app.get("/", (req, res) => {
-      response.render("app");
+      response.render("chat");
     });
   }
 
