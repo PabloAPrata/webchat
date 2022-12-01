@@ -400,6 +400,7 @@ function save_message_on_storage(new_message) {
       });
     }
   }
+  console.log(database_messages)
 }
 
 function id_generator() {
