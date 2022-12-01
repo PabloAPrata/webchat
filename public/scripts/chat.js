@@ -1,22 +1,55 @@
+// VARIÁVEIS GLOBAIS
 
-const myUser = {
-  name: "Pablo Prata",
-  number: "9992480831",
-  password: "password",
-  text: "Eh nois",
-};
-let global_list_chats;
-let global_list_messages;
-
+let database_messages = [];
 let z_index_chat_list = 0;
 let transform_chat_list = 0;
+let user_list = [];
+let chat_list = [];
+let socket_id = null;
+let chat_selected = null;
+
+const account_info = {
+  socket_id: null,
+  name: null,
+  number: null,
+  text: "Nothing",
+};
+
+// ----------------------------------------------------------------
+// ELEMENTOS DA DOM
 
 const ul = document.getElementById("container-list");
 const chat_container = document.getElementById("chat-container");
 const conversation_body = document.getElementById("conversation");
+const username_div = document.getElementById("your-name-header");
 
-// ---------------------------------------
-// Ajax configs
+// ----------------------------------------------------------------
+// FUNÇÕES DO SOCKET
+
+const socket = io.connect();
+
+socket.on("user_list", (user_list_coming, socket_id_coming) => {
+  if (socket_id === null) {
+    socket_id = socket_id_coming;
+  }
+  user_list = user_list_coming;
+  load_lista_chat();
+});
+
+socket.on("exit", (user_list_coming) => {
+  user_list = user_list_coming;
+  load_lista_chat();
+});
+
+socket.on("send_msg", (data) => {
+  receive_message(data);
+});
+
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+
 function ajax(config) {
   const xhr = new XMLHttpRequest();
   xhr.open(config.metodo, config.url, true);
@@ -39,67 +72,47 @@ function ajax(config) {
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
 
+function register_user() {
+  account_info.name = window.prompt("Insira seu nome");
+  account_info.number = window.prompt("Insira seu número");
+  username_div.textContent = account_info.name;
 
-
-function update_opened_chat(id, msg) {
-  if (id === undefined) return;
-
-  global_list_messages.forEach((e) => {
-    if (e.chat_id == msg.chat_id) {
-      e.mensagens.push(msg);
-    }
-  });
-
-  update_chat_on_list(id, msg.text, msg.user, msg.time);
-
-  chat_selected_color(id);
-
-  put_chat_first(id);
-
-  load_header_chat(id);
-
-  load_messages_chat(global_list_messages, id);
-
-  load_input_chat(id);
+  socket.emit("register", account_info);
 }
 
-function get_notification() {
-  ajax({
-    url: "get-update",
-    metodo: "post",
-    body: {
-      number: myUser.number,
-    },
-    sucesso(resposta) {
-      if (resposta == 0) return;
-      console.log(resposta);
-    },
-  });
+function receive_message(data) {
+  update_chat_on_list(data.fromid, data.text, data.user, new Date());
+  put_chat_first(data.fromid);
+  save_message_on_storage(data);
+
+  if (data.fromid == chat_selected) {
+    append_new_message(data);
+  }
 }
 
-function get_chat_list() {
-  ajax({
-    url: "chats",
-    metodo: "get",
-    sucesso(resposta) {
-      global_list_chats = JSON.parse(resposta);
-      load_lista_chat();
-    },
-  });
-}
+function append_new_message(data) {
+  const container_message_other = document.createElement("div");
+  const other_message = document.createElement("div");
 
-function get_messages() {
-  ajax({
-    url: "conversations",
-    metodo: "get",
-    sucesso(resposta) {
-      global_list_messages = JSON.parse(resposta);
-    },
-  });
+  const conversation_space = document.getElementById(
+    "conversation-panel-messages"
+  );
+
+  container_message_other.className = "they-message-container";
+  other_message.className = "they-message message-baloon";
+
+  other_message.textContent = data.text;
+  container_message_other.appendChild(other_message);
+
+  conversation_space.appendChild(container_message_other);
 }
 
 function load_lista_chat() {
-  global_list_chats.forEach(function (e) {
+  ul.innerHTML = "";
+  z_index_chat_list = 0;
+  transform_chat_list = 0;
+  user_list.forEach(function (e) {
+    if (e.id == socket_id) return;
     const chat_li = document.createElement("li");
     const div_infos = document.createElement("div");
     const contact_image = document.createElement("div");
@@ -110,17 +123,17 @@ function load_lista_chat() {
     const time = document.createElement("div");
 
     time.className = "time-stamp";
-    time.textContent = e.last_message.time;
+    // time.textContent = e.last_message.time;
     last_message.className = "last-message";
-    last_message.textContent = `${e.last_message.user}: ${e.last_message.text}`;
+    // last_message.textContent = `${e.last_message.user}: ${e.last_message.text}`;
     name_user.className = "name-user";
-    name_user.textContent = e.name;
+    name_user.textContent = e.user.name;
     contact_info.className = "contact-info";
     img.setAttribute("src", "../image/user-3296.svg");
     contact_image.className = "contact-image";
-    chat_li.setAttribute("id", e.chat_id);
+    chat_li.setAttribute("id", e.id);
     chat_li.onclick = open_chat;
-    chat_li.setAttribute("user_name", e.name);
+    chat_li.setAttribute("user_name", e.user.name);
 
     contact_info.appendChild(name_user);
     contact_info.appendChild(last_message);
@@ -164,17 +177,20 @@ function load_header_chat(id) {
   p.textContent = name_user;
 }
 
-function load_messages_chat(data_messages, id) {
+function load_messages_chat(database_messages, id) {
   const conversation_space = document.createElement("div");
   conversation_space.className = "conversation-panel-messages";
+  conversation_space.setAttribute("id", "conversation-panel-messages");
+  // conversation_body.innerHTML = "";
   conversation_body.appendChild(conversation_space);
 
-  // console.log(data_messages);
-
-  data_messages.forEach((e) => {
-    if (e.chat_id == id) {
+  database_messages.forEach((e) => {
+    console.log(e.chat_id == id);
+    console.log(e.chat_id);
+    console.log(id);
+    if (e.chat_id == id || e.chat_id == socket_id) {
       e.mensagens.forEach((e) => {
-        if (e.number == myUser.number) {
+        if (e.number == account_info.number) {
           const container_message_self = document.createElement("div");
           const self_message = document.createElement("div");
 
@@ -208,12 +224,16 @@ function send_message(text, chat_id) {
   if (text == "") return;
   let input = document.getElementsByClassName("conversation-input")[0];
   const msg = {
-    user: myUser.name,
-    number: myUser.number,
-    chat_id: chat_id,
+    user: account_info.name,
+    number: account_info.number,
+    toid: chat_id,
+    fromid: socket_id,
     text: text,
     time: new Date(),
   };
+
+  // Enviar a mensagem
+  socket.emit("get_msg", msg);
 
   const conversation_space = document.getElementsByClassName(
     "conversation-panel-messages"
@@ -236,37 +256,14 @@ function send_message(text, chat_id) {
 
   text = text.trim();
 
-  ajax({
-    url: "/send-message",
-    metodo: "put",
-    body: {
-      user: myUser.name,
-      number: myUser.number,
-      chat_id: chat_id,
-      text: text,
-      time: new Date(),
-    },
-    sucesso(resposta) {},
-    erro(resposta) {
-      console.log(resposta);
-    },
-  });
-
-  global_list_messages.forEach((e) => {
-    if (e.chat_id == chat_id) {
-      e.mensagens.push(msg);
-    }
-  });
+  save_message_on_storage(msg);
   input.value = "";
 
-  update_chat_on_list(chat_id, text, myUser.name, new Date());
+  update_chat_on_list(chat_id, text, account_info.name, new Date());
   put_chat_first(chat_id);
   chat_selected_color(chat_id);
   conversation_space.style.scrollBehavior = "smooth";
   conversation_space.scrollTop = conversation_space.scrollHeight;
-
-  // ENVIANDO A MENSAGEM PARA TODOS, EXCETO QUEM ESTÁ ENVIANDO
-  socket.emit("msg", msg);
 }
 
 function load_input_chat(chat_id) {
@@ -328,9 +325,11 @@ function open_chat() {
 
   load_header_chat(id);
 
-  load_messages_chat(global_list_messages, id);
+  load_messages_chat(database_messages, id);
 
   load_input_chat(id);
+
+  chat_selected = id;
 }
 
 function put_chat_first(chat_id) {
@@ -371,5 +370,42 @@ function update_chat_on_list(chat_id, text, user, time) {
   time_stamp.textContent = time;
 }
 
-get_messages();
-get_chat_list();
+function save_message_on_storage(new_message) {
+
+  // SE NÃO HOUVER MENSAGENS NO BANCO ELE CRIARÁ
+  if (database_messages.length == 0) {
+    database_messages.push({
+      chat_id: new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
+      mensagens: [new_message],
+    });
+  }
+
+  // SE HOUVER MENSAGENS 
+  else {
+
+    let exist = false;
+    database_messages.forEach((e, i) => { 
+      // VERIFICARÁ SE JÁ EXISTE AQUELE CHAT
+      if(e.chat_id == new_message.fromid || e.chat_id == new_message.toid) {
+        e.mensagens.push(new_message);
+        exist = true;
+      }
+    })
+
+    if (!exist) {
+      database_messages.push({
+        chat_id: new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
+        mensagens: [new_message],
+      });
+    }
+  }
+
+  console.log(database_messages)
+}
+
+function id_generator() {
+  const id = Math.floor(Date.now() * Math.random()).toString(36);
+  return id;
+}
+
+register_user();

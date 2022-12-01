@@ -18,25 +18,27 @@ class Routes {
   socketEvents() {
     this.io.on("connection", (socket) => {
 
-      socket.on("username", (username) => {
-        console.log("Um novo usuário" + username);
+      socket.on("register", (user) => {
+        user.socket_id = socket.id
+
         this.users.push({
           id: socket.id,
-          username: username,
+          user: user,
         });
+
+        console.log("Um novo usuário: ");
+        console.log(user);
 
         let len = this.users.length;
         len--;
-        this.io.emit("userList", this.users, this.users[len].id);
+
+        this.io.emit("user_list", this.users, this.users[len].id);
       });
 
-      socket.on("getMsg", (data) => {
+      socket.on("get_msg", (data) => {
         console.log("Uma nova mensagem");
         console.log(data);
-        socket.broadcast.to(data.toid).emit("sendMsg", {
-          msg: data.msg,
-          name: data.name,
-        });
+        socket.broadcast.to(data.toid).emit("send_msg", data);
       });
 
       socket.on("disconnect", () => {
