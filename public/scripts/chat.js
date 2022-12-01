@@ -105,6 +105,8 @@ function append_new_message(data) {
   container_message_other.appendChild(other_message);
 
   conversation_space.appendChild(container_message_other);
+
+  conversation_space.scrollTop = conversation_space.scrollHeight;
 }
 
 function load_lista_chat() {
@@ -185,9 +187,6 @@ function load_messages_chat(database_messages, id) {
   conversation_body.appendChild(conversation_space);
 
   database_messages.forEach((e) => {
-    console.log(e.chat_id == id);
-    console.log(e.chat_id);
-    console.log(id);
     if (e.chat_id == id || e.chat_id == socket_id) {
       e.mensagens.forEach((e) => {
         if (e.number == account_info.number) {
@@ -371,36 +370,36 @@ function update_chat_on_list(chat_id, text, user, time) {
 }
 
 function save_message_on_storage(new_message) {
-
   // SE NÃO HOUVER MENSAGENS NO BANCO ELE CRIARÁ
   if (database_messages.length == 0) {
     database_messages.push({
-      chat_id: new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
+      chat_id:
+        new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
       mensagens: [new_message],
     });
   }
 
-  // SE HOUVER MENSAGENS 
+  // SE HOUVER MENSAGENS
   else {
-
     let exist = false;
-    database_messages.forEach((e, i) => { 
+    database_messages.forEach((e, i) => {
       // VERIFICARÁ SE JÁ EXISTE AQUELE CHAT
-      if(e.chat_id == new_message.fromid || e.chat_id == new_message.toid) {
+      if (e.chat_id == new_message.fromid || e.chat_id == new_message.toid) {
         e.mensagens.push(new_message);
         exist = true;
       }
-    })
+    });
 
     if (!exist) {
       database_messages.push({
-        chat_id: new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
+        chat_id:
+          new_message.fromid == socket_id
+            ? new_message.toid
+            : new_message.fromid,
         mensagens: [new_message],
       });
     }
   }
-
-  console.log(database_messages)
 }
 
 function id_generator() {
