@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Converse</title>
+    <title>Webchat</title>
 
     <link rel="stylesheet" href="styles/chat.css" />
-    <link rel="shortcut icon" href="../image/favicon.png" type="image/x-icon" />
+
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -23,24 +23,60 @@
               Nome do Usuário
             </p>
           </div>
-          <span class="material-icons" title="Nova conversa" style="margin: 0">
+          <span
+            id="new-chat"
+            class="material-icons"
+            title="Nova conversa"
+            style="margin: 0"
+          >
             add
           </span>
-          <span class="material-icons" title="Mais opções"> more_vert </span>
+          <div class="container-more-options">
+            <span id="more_vert" class="material-icons" title="Mais opções"> more_vert </span>
+            <ul id="menu_option">
+              <li id="desconnect-button">
+                Desconectar
+              </li>
+            </ul>
+          </div>
         </header>
         <div class="container-search-chat">
           <span id="search-icon" class="material-icons"> search </span>
           <input
             title="Caixa de texto de pesquisa"
             type="text"
-            placeholder="Pesquise uma conversa"
+            placeholder="Pesquisar ou começar uma nova conversa"
           />
-          <span class="material-icons" title="Filtro conversas não lidas">
+          <span id="filter_list" class="material-icons" title="Filtro conversas não lidas">
             filter_list
           </span>
         </div>
         <ul id="container-list" class="container-list"></ul>
       </section>
+
+      <section id="section-contacts" class="section-contacts">
+        <header class="contactslist-header">
+          <div class="container-side-title">
+            <span id="side_arrow_back" class="material-icons">
+              arrow_back
+            </span>
+            <h1>Nova conversa</h1>
+          </div>
+        </header>
+        <div class="container-search-chat">
+          <span id="side-search-icon" class="material-icons"> search </span>
+          <input
+            title="Caixa de texto de pesquisa"
+            type="text"
+            placeholder="Pesquisar contatos"
+          />
+          <span class="material-icons" title="Filtro conversas não lidas">
+            filter_list
+          </span>
+        </div>
+        <ul id="side-contacts" class="side-contacts"></ul>
+      </section>
+
       <section id="conversation" class="conversation">
         <h1>Converse</h1>
         <p class="text-start">Envie e receba mensagens para seus amigos.</p>
