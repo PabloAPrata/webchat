@@ -22,6 +22,13 @@ const ul = document.getElementById("container-list");
 const chat_container = document.getElementById("chat-container");
 const conversation_body = document.getElementById("conversation");
 const username_div = document.getElementById("your-name-header");
+const new_chat = document.getElementById("new-chat");
+const section_contacts = document.getElementById("section-contacts");
+const side_arrow_back = document.getElementById("side_arrow_back");
+const side_search_icon = document.getElementById("side-search-icon");
+const side_more_vert = document.getElementById("more_vert");
+const menu_option = document.getElementById("menu_option");
+const filter_list = document.getElementById("filter_list");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -49,7 +56,45 @@ socket.on("send_msg", (data) => {
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 //----------------------------------------------------------------
+// BOTÕES DA INTERFACE - INTERAÇÕES
 
+new_chat.addEventListener("click", (event) => {
+  // section_contacts.style.opacity = 1;
+  setTimeout(() => {
+    section_contacts.style.transform = "translateX(0px)";
+  }, 100);
+  section_contacts.style.display = "block";
+});
+
+side_arrow_back.addEventListener("click", (event) => {
+  section_contacts.style.transform = null;
+  // section_contacts.style.opacity = null;
+  setTimeout(() => {
+    // section_contacts.style.opacity = null;
+    section_contacts.style.display = "none";
+  }, 200);
+});
+
+side_more_vert.addEventListener("click", () => {
+  if (menu_option.style.display == "block") {
+    menu_option.style.display = "none";
+  } else {
+    menu_option.style.display = "block";
+  }
+});
+
+filter_list.addEventListener("click", (event) => {
+  if (filter_list.style.background == "rgb(4, 167, 132)") {
+
+    filter_list.style.background = null;
+    filter_list.style.color = null;
+  } else {
+    filter_list.style.background = "rgb(4, 167, 132)";
+    filter_list.style.color = "white";
+  }
+});
+
+//----------------------------------------------------------------
 function ajax(config) {
   const xhr = new XMLHttpRequest();
   xhr.open(config.metodo, config.url, true);
@@ -144,6 +189,7 @@ function load_lista_chat() {
     div_infos.appendChild(contact_info);
     chat_li.appendChild(div_infos);
     chat_li.appendChild(time);
+    chat_li.classList.add("li-chat");
 
     chat_li.style.zIndex = z_index_chat_list;
     chat_li.style.transform = `translateY(${transform_chat_list}px)`;
@@ -335,7 +381,7 @@ function put_chat_first(chat_id) {
   const notified_chat = document.getElementById(chat_id);
   if (notified_chat == null) return;
   const notified_chat_copy = notified_chat;
-  let array_chats = document.querySelectorAll("li");
+  let array_chats = document.querySelectorAll(".li-chat");
 
   transform_chat_list = 0;
   notified_chat.style.transform = `translateY(${transform_chat_list}px)`;
