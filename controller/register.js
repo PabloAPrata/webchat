@@ -2,13 +2,11 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const app = express();
 
-
 // Config JSON
 app.use(express.json());
 
 // Models
 const User = require("../models/User");
-
 
 module.exports = {
   async register(request, response) {

@@ -36,7 +36,7 @@ module.exports = {
       }
 
       try {
-        const secret = require("../services/secret").secret;
+        const secret = require("../private/secret").secret;
 
         const token = jwt.sign(
           {

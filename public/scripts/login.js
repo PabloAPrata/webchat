@@ -13,8 +13,6 @@ document
       password: password_input.value,
     };
 
-    console.log(values);
-
     ajax({
       url: "auth/login",
       metodo: "post",
@@ -22,18 +20,22 @@ document
       sucesso(resposta) {
         console.log(resposta);
         const msg = JSON.parse(resposta.data).msg;
-        console.log(msg);
+        const token = JSON.parse(resposta.data).token;
         alert(msg);
-        // const token = JSON.parse(resposta).token;
-        // localStorage.setItem("token", token);
-        // console.log("Login successful");
+        localStorage.setItem("token", token);
         // window.location.href = "/home";
       },
       erro(erro) {
         console.log(erro);
         const msg = JSON.parse(erro.data).msg;
-        console.log(msg);
         alert(msg);
       },
     });
   });
+
+function parseJwt(token) {
+  let base64Url = token.split(".")[1];
+  let base64 = base64Url.replace("-", "+").replace("_", "/");
+
+  return JSON.parse(window.atob(base64));
+}

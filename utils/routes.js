@@ -1,7 +1,9 @@
 "use strict";
 
-const register_controller = require("../controller/register_controller");
-const login_controller = require("../controller/login_controller");
+// CONTROLLER
+const register_controller = require("../controller/register");
+const login_controller = require("../controller/login");
+const user_controller = require("../controller/user");
 
 class Routes {
   constructor(app, socket) {
@@ -24,6 +26,9 @@ class Routes {
     this.app.post("/auth/register", register_controller.register);
 
     this.app.post("/auth/login", login_controller.login);
+
+    // Private routes
+    this.app.get("/user/:id", user_controller.checkToken, user_controller.user);
   }
 
   socketEvents() {
