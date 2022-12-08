@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebChat | Seu lugar para papear e ficar de boa.</title>
+    <title>WebChat | Registre-se</title>
 
     <link rel="stylesheet" href="styles/login.css" />
   </head>
@@ -12,10 +12,21 @@
     <div class="welcome-login">
       <div class="container-login">
         <header class="header">
-          <h1>Bem vindo(a) ao WebChat!</h1>
-          <p>Uma nova era de mensagens</p>
+          <h1>Criar uma conta</h1>
         </header>
-        <form action="/auth/login" class="form-login" method="post">
+        <form action="/auth/register" class="form-login" method="post">
+          <div class="container-input">
+            <div class="container-label">
+              <label for="number">Nome de usuário</label>
+            </div>
+            <input
+              id="username-input"
+              class="text-input"
+              type="text"
+              name="number"
+              required
+            />
+          </div>
           <div class="container-input">
             <div class="container-label">
               <label for="number">Número de telefone</label>
@@ -40,20 +51,31 @@
               required
             />
           </div>
+          <div class="container-input">
+            <div class="container-label">
+              <label for="password">Confirme a Senha</label>
+            </div>
+            <input
+              id="confirm-password-input"
+              class="text-input"
+              type="password"
+              name="password"
+              required
+            />
+          </div>
           <input
-            id="login-button"
+            id="register-button"
             class="login-button"
             type="submit"
-            value="Entrar"
+            value="Continuar"
           />
         </form>
-      </div>
-      <div class="sub-submit">
-        Não possui uma conta?
-        <a href="register">Registre-se</a>
+        <div class="sub-submit">
+          <a href="/">Já tem uma conta?</a>
+        </div>
       </div>
     </div>
 
-    <script src="/scripts/login.js" type="module"></script>
+    <script src="/scripts/register.js" type="module"></script>
   </body>
 </html>

@@ -9,7 +9,8 @@ body {
   user-select: none;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
 }
@@ -34,7 +35,7 @@ body {
 }
 
 .container-login {
-  height: 100%;
+  /* height: 100%; */
   width: 100%;
 }
 
@@ -69,12 +70,13 @@ body {
 .text-input {
   background-color: #202225;
   outline: none;
-  width: 96%;
+  width: 97%;
   color: white;
   border: transparent;
   border-radius: 4px;
   height: 20px;
-  padding: 10px;
+  padding-left: 10px;
+  height: 43px;
 }
 
 .container-label {
@@ -101,16 +103,33 @@ body {
   background-color: #4752c4;
 }
 
+.sub-submit {
+  margin-top: 10px;
+  color: rgb(163, 166, 170);
+  text-align: left;
+}
+
+.sub-submit a {
+  margin-left: 5px;
+  color: #01aef4;
+  text-decoration: none;
+}
+
+.sub-submit a:hover {
+  color: #01aef4;
+  text-decoration: underline;
+}
+
 @media (max-width: 485px) {
   body {
     background-color: #36393e;
     background-image: inherit;
+    align-items: start;
   }
 
   .welcome-login {
     min-width: inherit;
     width: 100%;
-    height: 100%;
     padding: 0px;
     padding: 40% 0px 0px 0px;
     box-shadow: inherit;
@@ -121,4 +140,7 @@ body {
     padding-right: 20px;
   }
 
+  .sub-submit {
+    margin-left: 20px;
+  }
 }

@@ -1,5 +1,5 @@
 // VARIÁVEIS GLOBAIS
-
+import {  ajax  } from "./ajax.js";
 let database_messages = [];
 let z_index_chat_list = 0;
 let transform_chat_list = 0;
@@ -94,28 +94,6 @@ filter_list.addEventListener("click", (event) => {
   }
 });
 
-//----------------------------------------------------------------
-function ajax(config) {
-  const xhr = new XMLHttpRequest();
-  xhr.open(config.metodo, config.url, true);
-
-  if (config.metodo == "post" || config.metodo == "put") {
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(config.body));
-  }
-  xhr.onload = (e) => {
-    if (xhr.readyState == 4 && xhr.status === 200) {
-      config.sucesso(xhr.response);
-    } else if (xhr.status >= 400) {
-      config.erro({
-        code: xhr.status,
-        text: xhr.statusText,
-      });
-    }
-  };
-
-  if (config.metodo == "get" || config.metodo == "delete") xhr.send();
-}
 
 function register_user() {
   account_info.name = window.prompt("Insira seu nome");
