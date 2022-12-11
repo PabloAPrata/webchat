@@ -15,17 +15,17 @@ class Routes {
   }
 
   appRoutes() {
-    this.app.get("/", (request, response) => {
-      response.render("login");
-    });
+    this.app.get("/", (request, response) => response.render("login"));
 
-    this.app.get("/register", (request, response) => {
-      response.render("register");
-    });
+    this.app.get("/register", (request, response) =>
+      response.render("register")
+    );
 
     this.app.post("/auth/register", register_controller.register);
 
     this.app.post("/auth/login", login_controller.login);
+
+    this.app.get("/:id", (request, response) => response.render("index"));
 
     // Private routes
     this.app.get("/user/:id", user_controller.checkToken, user_controller.user);

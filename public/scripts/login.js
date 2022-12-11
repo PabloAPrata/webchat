@@ -19,11 +19,15 @@ document
       body: values,
       sucesso(resposta) {
         console.log(resposta);
-        const msg = JSON.parse(resposta.data).msg;
-        const token = JSON.parse(resposta.data).token;
-        alert(msg);
-        localStorage.setItem("token", token);
-        // window.location.href = "/home";
+
+        // Se estiver tudo correto com o login, entrará no chat!
+        if (resposta.code === 200) {
+          const msg = JSON.parse(resposta.data).msg;
+          const token = JSON.parse(resposta.data).token;
+          const id = parseJwt(token).id;
+          localStorage.setItem("token", token);
+          window.location.href = "/" + id;
+        }
       },
       erro(erro) {
         console.log(erro);
@@ -33,6 +37,7 @@ document
     });
   });
 
+// Decodificar o token
 function parseJwt(token) {
   let base64Url = token.split(".")[1];
   let base64 = base64Url.replace("-", "+").replace("_", "/");

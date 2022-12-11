@@ -2,6 +2,12 @@ export function ajax(config) {
   const xhr = new XMLHttpRequest();
   xhr.open(config.metodo, config.url, true);
 
+  if (config.headers) {
+    config.headers.forEach((e) => {
+      xhr.setRequestHeader(e.header, e.value);
+    });
+  }
+
   if (config.metodo == "post" || config.metodo == "put") {
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify(config.body));
@@ -24,3 +30,5 @@ export function ajax(config) {
 
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
+
+// setRequestHeader(header, value)

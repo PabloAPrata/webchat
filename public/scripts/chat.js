@@ -1,5 +1,5 @@
 // VARIÁVEIS GLOBAIS
-import {  ajax  } from "./ajax.js";
+import { ajax } from "./ajax.js";
 let database_messages = [];
 let z_index_chat_list = 0;
 let transform_chat_list = 0;
@@ -7,6 +7,7 @@ let user_list = [];
 let chat_list = [];
 let socket_id = null;
 let chat_selected = null;
+let token = localStorage.getItem("token");
 
 const account_info = {
   socket_id: null,
@@ -14,6 +15,33 @@ const account_info = {
   number: null,
   text: "Nothing",
 };
+
+function autentication(token) {
+  const id = get_url_id();
+
+  ajax({
+    url: "/user" + id,
+    metodo: "get",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    sucesso(resposta) {
+      if (resposta.code === 200) {
+        const user = JSON.parse(resposta.data).user;
+        account_info.name = user.name;
+        account_info.number = user.number;
+        account_info.socket_id = user._id;
+
+        username_div.textContent = account_info.name;
+        socket.emit("register", account_info);
+      } else {
+        console.log(resposta);
+      }
+    },
+    erro(erro) {
+      const msg = JSON.parse(erro.data).msg;
+      alert(msg);
+    },
+  });
+}
 
 // ----------------------------------------------------------------
 // ELEMENTOS DA DOM
@@ -85,7 +113,6 @@ side_more_vert.addEventListener("click", () => {
 
 filter_list.addEventListener("click", (event) => {
   if (filter_list.style.background == "rgb(4, 167, 132)") {
-
     filter_list.style.background = null;
     filter_list.style.color = null;
   } else {
@@ -93,15 +120,6 @@ filter_list.addEventListener("click", (event) => {
     filter_list.style.color = "white";
   }
 });
-
-
-function register_user() {
-  account_info.name = window.prompt("Insira seu nome");
-  account_info.number = window.prompt("Insira seu número");
-  username_div.textContent = account_info.name;
-
-  socket.emit("register", account_info);
-}
 
 function receive_message(data) {
   update_chat_on_list(data.fromid, data.text, data.user, new Date());
@@ -424,7 +442,7 @@ function save_message_on_storage(new_message) {
       });
     }
   }
-  console.log(database_messages)
+  console.log(database_messages);
 }
 
 function id_generator() {
@@ -432,4 +450,10 @@ function id_generator() {
   return id;
 }
 
-register_user();
+function get_url_id() {
+  let id = window.location.pathname;
+
+  return id;
+}
+
+autentication(token);
