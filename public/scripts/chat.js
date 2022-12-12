@@ -39,6 +39,7 @@ function autentication(token) {
     erro(erro) {
       const msg = JSON.parse(erro.data).msg;
       alert(msg);
+      window.location.pathname = "/";
     },
   });
 }

@@ -29,7 +29,7 @@ document
       confirmpassword: confirm_password_input.value,
     };
 
-    console.log("Entrou aqui");
+   
     ajax({
       url: "auth/register",
       metodo: "post",

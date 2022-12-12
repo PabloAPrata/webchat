@@ -4,6 +4,8 @@
 const register_controller = require("../controller/register");
 const login_controller = require("../controller/login");
 const user_controller = require("../controller/user");
+const chat_controller = require("../controller/chat");
+const token_validator = require("../controller/token");
 
 class Routes {
   constructor(app, socket) {
@@ -28,11 +30,18 @@ class Routes {
     this.app.get("/:id", (request, response) => response.render("index"));
 
     // Private routes
-    this.app.get("/user/:id", user_controller.checkToken, user_controller.user);
+    this.app.get("/user/:id", token_validator.checkToken, user_controller.user);
+    // Criar chat
+    this.app.post(
+      "/chat/create",
+      token_validator.checkToken,
+      chat_controller.createChat
+    );
   }
 
   socketEvents() {
     this.io.on("connection", (socket) => {
+      
       socket.on("register", (user) => {
         user.socket_id = socket.id;
 
