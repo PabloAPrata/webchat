@@ -4,8 +4,7 @@ const Chat = mongoose.model("Chat", {
   name: String,
   members: Array,
   group: Boolean,
-  muted: Boolean,
-  message: Array,
+  lmessage: Object,
 });
 
 module.exports = Chat;

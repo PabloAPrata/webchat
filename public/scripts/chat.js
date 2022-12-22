@@ -275,7 +275,15 @@ function send_message(text, chat_id) {
   };
 
   // Enviar a mensagem
-  socket.emit("get_msg", msg);
+  socket.timeout(5000).emit("get_msg", (err, response) => {
+    if (err) {
+      // the other side did not acknowledge the event in the given delay
+      alert(err);
+    } else {
+      console.log(response);
+      socket.emit("get_msg", msg);
+    }
+  });
 
   const conversation_space = document.getElementsByClassName(
     "conversation-panel-messages"

@@ -11,6 +11,12 @@ module.exports = {
   async user(request, response) {
     const id = request.params.id;
 
+    if (id.length != 24) {
+      return response
+        .status(502)
+        .json({ msg: "O ID informado não possui os requisitos necessários!" });
+    }
+
     // check if user exists
     const user = await User.findById(id, "-password");
 
@@ -19,5 +25,5 @@ module.exports = {
     }
     // PRECISO ENVIAR O TOKEN
     response.status(200).json({ user });
-  }
+  },
 };
