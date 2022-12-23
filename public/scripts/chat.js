@@ -73,18 +73,20 @@ socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
     socket_id = socket_id_coming;
   }
   online_user_list = online_user_list_coming;
-  // load_chats_list();
-  console.log(online_user_list);
+});
+
+socket.on("unread messages", (event) => {
+  setTimeout(() => {
+    console.log(event);
+    alert(event.text);
+  }, 1000);
 });
 
 socket.on("exit", (online_user_list_coming) => {
-  console.log(online_user_list_coming);
   online_user_list = online_user_list_coming;
-  // load_chats_list();
 });
 
 socket.on("send_msg", (data) => {
-  console.log(data);
   receive_message(data);
 });
 

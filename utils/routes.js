@@ -7,6 +7,7 @@ const user_controller = require("../controller/user");
 const chat_controller = require("../controller/chat");
 const token_validator = require("../controller/token");
 const chat = require("../controller/chat");
+let io_extra = null;
 
 let online_users = [];
 let events_losted = [];
@@ -15,7 +16,7 @@ class Routes {
   constructor(app, socket) {
     this.app = app;
     this.io = socket;
-
+    io_extra = socket;
     //Array para armazenar a lista de usuários junto com o socket.io respectivo
     // this.online_users = [];
   }
@@ -88,11 +89,48 @@ class Routes {
     this.io.on("connection", (socket) => {
       // FUNÇÕES PARA WEBSOCKET
 
-      // function check_event_losted(socket, user) {
-      //   for (let i = 0; i < events_losted.length; i++) {
-      //     if (user === events_losted[i])])])
-      //   }
-      // }
+      function check_event_losted(user) {
+        console.log(user);
+        for (let i = 0; i < events_losted.length; i++) {
+          console.log(user === events_losted[i].members);
+          if (user === events_losted[i].members) {
+            console.log(get_id_by_number(events_losted[i].members));
+            io_extra
+              .to(get_id_by_number(events_losted[i].members))
+              .emit("unread messages", events_losted[i]);
+            console.log(events_losted[i]);
+            events_losted.splice(i, 1);
+          }
+        }
+        console.log(online_users);
+      }
+
+      function send_message_to(data) {
+        data.members.forEach((number) => {
+          let send = false;
+          online_users.forEach((element) => {
+            if (!send) {
+              if (number === element.user.number) {
+                send = true;
+                console.log("Enviou mensagem para : " + number);
+                socket.broadcast
+                  .to(get_id_by_number(element.user.number))
+                  .emit("send_msg", data);
+              }
+            }
+          });
+          if (!send) {
+            console.log("Não conseguiu enviar para: " + number);
+            persistir_evento(data, number);
+          }
+        });
+      }
+
+      function persistir_evento(data, number) {
+        let newData = { ...data };
+        newData.members = number;
+        events_losted.push(newData);
+      }
 
       function get_id_by_number(number) {
         let id = undefined;
@@ -118,13 +156,16 @@ class Routes {
         len--;
 
         this.io.emit("online_user_list", online_users, online_users[len].id);
+
+        check_event_losted(user.number);
       });
 
       socket.on("get_msg", (data) => {
-        data.members.forEach((number) => {
-          console.log(data);
-          socket.broadcast.to(get_id_by_number(number)).emit("send_msg", data);
-        });
+        // data.members.forEach((number) => {
+        //   socket.broadcast.to(get_id_by_number(number)).emit("send_msg", data);
+        // });
+
+        send_message_to(data);
       });
 
       socket.on("disconnect", () => {
