@@ -74,14 +74,17 @@ socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
   }
   online_user_list = online_user_list_coming;
   // load_chats_list();
+  console.log(online_user_list);
 });
 
 socket.on("exit", (online_user_list_coming) => {
+  console.log(online_user_list_coming);
   online_user_list = online_user_list_coming;
   // load_chats_list();
 });
 
 socket.on("send_msg", (data) => {
+  console.log(data);
   receive_message(data);
 });
 
@@ -127,11 +130,11 @@ filter_list.addEventListener("click", (event) => {
 });
 
 function receive_message(data) {
-  update_chat_on_list(data.fromid, data.text, data.user, new Date());
-  put_chat_first(data.fromid);
-  save_message_on_storage(data);
+  update_chat_on_list(data.chat_id, data.text, data.sender_name, new Date());
+  put_chat_first(data.chat_id);
+  // save_message_on_storage(data);
 
-  if (data.fromid == chat_selected) {
+  if (data.chat_id == chat_selected) {
     append_new_message(data);
   }
 }
@@ -195,7 +198,7 @@ function load_chats_list() {
   ul.innerHTML = "";
   z_index_chat_list = 0;
   transform_chat_list = 0;
-  console.log("Carregando lista de chats...");
+
   chats_list.forEach(function (e) {
     let name = null;
     const other_members = remove_my_number(e.members);
@@ -352,12 +355,15 @@ function send_message(text, chat_id) {
   if (text == "") return;
   let input = document.getElementsByClassName("conversation-input")[0];
 
-  const members = get_members_by_chat_id(chat_id);
+  let members = get_members_by_chat_id(chat_id);
+
+  members = remove_my_number(members);
 
   const msg = {
     sender_name: account_info.name,
     sender_number: account_info.number,
     members: members,
+    chat_id: chat_id,
     text: text,
     time: new Date(),
   };
@@ -366,14 +372,7 @@ function send_message(text, chat_id) {
   persist_message_db(chat_id, text);
 
   // Enviar a mensagem
-  socket.timeout(5000).emit("get_msg", (err, response) => {
-    if (err) {
-      // the other side did not acknowledge the event in the given delay
-      alert(err);
-    } else {
-      socket.emit("get_msg", msg);
-    }
-  });
+  socket.emit("get_msg", msg);
 
   const conversation_space = document.getElementsByClassName(
     "conversation-panel-messages"

@@ -6,6 +6,10 @@ const login_controller = require("../controller/login");
 const user_controller = require("../controller/user");
 const chat_controller = require("../controller/chat");
 const token_validator = require("../controller/token");
+const chat = require("../controller/chat");
+
+let online_users = [];
+let events_losted = [];
 
 class Routes {
   constructor(app, socket) {
@@ -13,7 +17,7 @@ class Routes {
     this.io = socket;
 
     //Array para armazenar a lista de usuários junto com o socket.io respectivo
-    this.users = [];
+    // this.online_users = [];
   }
 
   appRoutes() {
@@ -82,33 +86,54 @@ class Routes {
 
   socketEvents() {
     this.io.on("connection", (socket) => {
+      // FUNÇÕES PARA WEBSOCKET
+
+      // function check_event_losted(socket, user) {
+      //   for (let i = 0; i < events_losted.length; i++) {
+      //     if (user === events_losted[i])])])
+      //   }
+      // }
+
+      function get_id_by_number(number) {
+        let id = undefined;
+
+        online_users.forEach((element) => {
+          if (element.user.number === number) {
+            id = element.id;
+          }
+        });
+        return id;
+      }
+
+      // =================================================================
       socket.on("register", (user) => {
         user.socket_id = socket.id;
 
-        this.users.push({
+        online_users.push({
           id: socket.id,
           user: user,
         });
 
-        let len = this.users.length;
+        let len = online_users.length;
         len--;
 
-        this.io.emit("online_user_list", this.users, this.users[len].id);
+        this.io.emit("online_user_list", online_users, online_users[len].id);
       });
 
       socket.on("get_msg", (data) => {
-        console.log(data);
-        console.log(this.users);
-        socket.broadcast.to(data.toid).emit("send_msg", data);
+        data.members.forEach((number) => {
+          console.log(data);
+          socket.broadcast.to(get_id_by_number(number)).emit("send_msg", data);
+        });
       });
 
       socket.on("disconnect", () => {
-        this.users.forEach((elemento, indice) => {
+        online_users.forEach((elemento, indice) => {
           if (elemento.id === socket.id) {
-            this.users.splice(indice, 1);
+            online_users.splice(indice, 1);
           }
         });
-        this.io.emit("exit", this.users);
+        this.io.emit("exit", online_users);
       });
     });
   }
