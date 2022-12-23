@@ -1,12 +1,17 @@
 // VARIÁVEIS GLOBAIS
 import { ajax } from "./ajax.js";
-let database_messages = [];
+
+let cached_messages = [];
 let z_index_chat_list = 0;
 let transform_chat_list = 0;
-let user_list = [];
-let chat_list = [];
+
+let online_user_list = [];
+let contacts_list = [];
+let chats_list = [];
+
 let socket_id = null;
 let chat_selected = null;
+let members_chat_opened = [];
 let token = localStorage.getItem("token");
 
 const account_info = {
@@ -33,7 +38,6 @@ function autentication(token) {
         username_div.textContent = account_info.name;
         socket.emit("register", account_info);
       } else {
-        console.log(resposta);
       }
     },
     erro(erro) {
@@ -64,17 +68,17 @@ const filter_list = document.getElementById("filter_list");
 
 const socket = io.connect();
 
-socket.on("user_list", (user_list_coming, socket_id_coming) => {
+socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
   if (socket_id === null) {
     socket_id = socket_id_coming;
   }
-  user_list = user_list_coming;
-  load_lista_chat();
+  online_user_list = online_user_list_coming;
+  // load_chats_list();
 });
 
-socket.on("exit", (user_list_coming) => {
-  user_list = user_list_coming;
-  load_lista_chat();
+socket.on("exit", (online_user_list_coming) => {
+  online_user_list = online_user_list_coming;
+  // load_chats_list();
 });
 
 socket.on("send_msg", (data) => {
@@ -132,6 +136,20 @@ function receive_message(data) {
   }
 }
 
+function get_members_by_chat_id(chat_id) {
+  // chats_list
+  let size = chats_list.length;
+  let members = [];
+  for (let i = 0; i < size; i++) {
+    if (chats_list[i]._id === chat_id) {
+      members = chats_list[i].members;
+      break;
+    }
+  }
+
+  return members;
+}
+
 function append_new_message(data) {
   const container_message_other = document.createElement("div");
   const other_message = document.createElement("div");
@@ -151,12 +169,41 @@ function append_new_message(data) {
   conversation_space.scrollTop = conversation_space.scrollHeight;
 }
 
-function load_lista_chat() {
+function remove_my_number(array_members) {
+  const result = array_members.filter(
+    (element) => element !== account_info.number
+  );
+
+  return result;
+}
+
+function get_name_user_by_number(number) {
+  let size = contacts_list.length;
+  let name = null;
+  for (let i = 0; i < size; i++) {
+    if (contacts_list[i].number === number) {
+      name = contacts_list[i].name;
+      break;
+    }
+  }
+
+  if (name === null) return number;
+  else return name;
+}
+
+function load_chats_list() {
   ul.innerHTML = "";
   z_index_chat_list = 0;
   transform_chat_list = 0;
-  user_list.forEach(function (e) {
-    if (e.id == socket_id) return;
+  console.log("Carregando lista de chats...");
+  chats_list.forEach(function (e) {
+    let name = null;
+    const other_members = remove_my_number(e.members);
+
+    if (other_members.length === 1) {
+      name = get_name_user_by_number(other_members[0]);
+    }
+
     const chat_li = document.createElement("li");
     const div_infos = document.createElement("div");
     const contact_image = document.createElement("div");
@@ -167,17 +214,15 @@ function load_lista_chat() {
     const time = document.createElement("div");
 
     time.className = "time-stamp";
-    // time.textContent = e.last_message.time;
-    last_message.className = "last-message";
-    // last_message.textContent = `${e.last_message.user}: ${e.last_message.text}`;
+
     name_user.className = "name-user";
-    name_user.textContent = e.user.name;
+    name_user.textContent = name;
     contact_info.className = "contact-info";
     img.setAttribute("src", "../image/user-3296.svg");
     contact_image.className = "contact-image";
-    chat_li.setAttribute("id", e.id);
+    chat_li.setAttribute("id", e._id);
     chat_li.onclick = open_chat;
-    chat_li.setAttribute("user_name", e.user.name);
+    chat_li.setAttribute("user_name", name);
 
     contact_info.appendChild(name_user);
     contact_info.appendChild(last_message);
@@ -194,8 +239,16 @@ function load_lista_chat() {
     z_index_chat_list++;
     transform_chat_list = transform_chat_list + 71;
 
+    if (e.lmessage != 0) {
+      time.textContent = e.lmessage.time;
+      last_message.className = "last-message";
+      last_message.textContent = `${e.lmessage.sender_name}: ${e.lmessage.text}`;
+    }
+
     ul.appendChild(chat_li);
   });
+
+  return true;
 }
 
 function load_header_chat(id) {
@@ -222,17 +275,29 @@ function load_header_chat(id) {
   p.textContent = name_user;
 }
 
-function load_messages_chat(database_messages, id) {
+function load_messages_chat(cached_messages, id) {
+  // Elementos visuais
   const conversation_space = document.createElement("div");
   conversation_space.className = "conversation-panel-messages";
   conversation_space.setAttribute("id", "conversation-panel-messages");
   // conversation_body.innerHTML = "";
   conversation_body.appendChild(conversation_space);
 
-  database_messages.forEach((e) => {
+  // Verifica se existe chat no cache
+  const chat_cached = get_chat_cached(id);
+
+  if (!chat_cached) {
+    const messages = get_database_messages(token, id);
+
+    messages.forEach((message) => {
+      put_message_cache(id, message);
+    });
+  }
+
+  cached_messages.forEach((e) => {
     if (e.chat_id == id || e.chat_id == socket_id) {
-      e.mensagens.forEach((e) => {
-        if (e.number == account_info.number) {
+      e.messages.forEach((e) => {
+        if (e.sender_number == account_info.number) {
           const container_message_self = document.createElement("div");
           const self_message = document.createElement("div");
 
@@ -262,17 +327,43 @@ function load_messages_chat(database_messages, id) {
   conversation_space.scrollTop = conversation_space.scrollHeight;
 }
 
+function persist_message_db(chat_id, text) {
+  ajax({
+    url: "/chat/sendMessage",
+    metodo: "post",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    body: {
+      chat_id: chat_id,
+      text: text,
+    },
+    sucesso(resposta) {
+      if (resposta.code === 201) {
+      } else {
+      }
+    },
+    erro(erro) {
+      const msg = JSON.parse(erro.data).msg;
+      alert(msg);
+    },
+  });
+}
+
 function send_message(text, chat_id) {
   if (text == "") return;
   let input = document.getElementsByClassName("conversation-input")[0];
+
+  const members = get_members_by_chat_id(chat_id);
+
   const msg = {
-    user: account_info.name,
-    number: account_info.number,
-    toid: chat_id,
-    fromid: socket_id,
+    sender_name: account_info.name,
+    sender_number: account_info.number,
+    members: members,
     text: text,
     time: new Date(),
   };
+
+  put_message_cache(chat_id, msg);
+  persist_message_db(chat_id, text);
 
   // Enviar a mensagem
   socket.timeout(5000).emit("get_msg", (err, response) => {
@@ -280,7 +371,6 @@ function send_message(text, chat_id) {
       // the other side did not acknowledge the event in the given delay
       alert(err);
     } else {
-      console.log(response);
       socket.emit("get_msg", msg);
     }
   });
@@ -306,7 +396,7 @@ function send_message(text, chat_id) {
 
   text = text.trim();
 
-  save_message_on_storage(msg);
+  // save_message_on_storage(msg);
   input.value = "";
 
   update_chat_on_list(chat_id, text, account_info.name, new Date());
@@ -375,7 +465,7 @@ function open_chat() {
 
   load_header_chat(id);
 
-  load_messages_chat(database_messages, id);
+  load_messages_chat(cached_messages, id);
 
   load_input_chat(id);
 
@@ -420,43 +510,118 @@ function update_chat_on_list(chat_id, text, user, time) {
   time_stamp.textContent = time;
 }
 
-function save_message_on_storage(new_message) {
-  // SE NÃO HOUVER MENSAGENS NO BANCO ELE CRIARÁ
-  if (database_messages.length == 0) {
-    database_messages.push({
-      chat_id:
-        new_message.fromid == socket_id ? new_message.toid : new_message.fromid,
-      mensagens: [new_message],
-    });
-  }
+let get_chatlist_1ft = false;
+function get_chat_list(token) {
+  ajax({
+    url: "/chat/list",
+    metodo: "get",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    sucesso(resposta) {
+      if (resposta.code === 200) {
+        const resposta_data = JSON.parse(resposta.data);
+        chats_list = [...resposta_data.chatsList];
 
-  // SE HOUVER MENSAGENS
-  else {
-    let exist = false;
-    database_messages.forEach((e, i) => {
-      // VERIFICARÁ SE JÁ EXISTE AQUELE CHAT
-      if (e.chat_id == new_message.fromid || e.chat_id == new_message.toid) {
-        e.mensagens.push(new_message);
-        exist = true;
+        if (!get_chatlist_1ft) {
+          load_chats_list();
+          get_chatlist_1ft = true;
+        }
+      } else {
       }
-    });
-
-    if (!exist) {
-      database_messages.push({
-        chat_id:
-          new_message.fromid == socket_id
-            ? new_message.toid
-            : new_message.fromid,
-        mensagens: [new_message],
-      });
-    }
-  }
-  console.log(database_messages);
+    },
+    erro(erro) {
+      const msg = JSON.parse(erro.data).msg;
+      alert(msg);
+    },
+  });
 }
 
-function id_generator() {
-  const id = Math.floor(Date.now() * Math.random()).toString(36);
-  return id;
+function get_contacts_list(token) {
+  ajax({
+    url: "/contacts/list",
+    metodo: "get",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    sucesso(resposta) {
+      if (resposta.code === 200) {
+        const resposta_data = JSON.parse(resposta.data);
+
+        contacts_list = [...resposta_data.contacts];
+      } else {
+      }
+    },
+    erro(erro) {
+      const msg = JSON.parse(erro.data).msg;
+      alert(msg);
+    },
+  });
+}
+
+function get_database_messages(token, chat_id) {
+  let messages = null;
+  ajax({
+    url: "/chat/messages/" + chat_id,
+    metodo: "get",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    sucesso(resposta) {
+      if (resposta.code === 200) {
+        const resposta_data = JSON.parse(resposta.data);
+        messages = resposta_data.messages;
+      } else {
+      }
+    },
+    erro(erro) {
+      const msg = JSON.parse(erro.data).msg;
+      alert(msg);
+    },
+    async: false,
+  });
+  return messages;
+}
+
+function put_message_cache(chat_id, message) {
+  const index = find_index_cached_chat(chat_id);
+
+  if (index || index === 0) {
+    if (!cached_messages[index]) {
+      cached_messages.push({
+        chat_id: chat_id,
+        messages: [message],
+      });
+    } else {
+      cached_messages[index].messages.push(message);
+    }
+  } else {
+    cached_messages.push({
+      chat_id: chat_id,
+      messages: [message],
+    });
+  }
+}
+
+function get_chat_cached(chat_id) {
+  const size = cached_messages.length;
+  let chat = null;
+  for (let i = 0; i < size; i++) {
+    if (cached_messages[i].chat_id === chat_id) {
+      chat = cached_messages[i];
+      break;
+    }
+  }
+
+  return chat;
+}
+
+function find_index_cached_chat(chat_id) {
+  const size = cached_messages.length;
+
+  let chat = null;
+  for (let i = 0; i < size; i++) {
+    if (cached_messages[i].chat_id === chat_id) {
+      chat = i;
+      break;
+    }
+  }
+
+  return chat;
 }
 
 function get_url_id() {
@@ -466,3 +631,5 @@ function get_url_id() {
 }
 
 autentication(token);
+get_chat_list(token);
+get_contacts_list(token);

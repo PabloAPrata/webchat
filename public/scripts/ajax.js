@@ -1,6 +1,9 @@
 export function ajax(config) {
   const xhr = new XMLHttpRequest();
-  xhr.open(config.metodo, config.url, true);
+  let async = true;
+  if (config.async !== undefined) async = config.async;
+
+  xhr.open(config.metodo, config.url, async);
 
   if (config.headers) {
     config.headers.forEach((e) => {

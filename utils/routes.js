@@ -58,6 +58,13 @@ class Routes {
       chat_controller.listChat
     );
 
+    // Listar todos os contatos
+    this.app.get(
+      "/contacts/list",
+      token_validator.checkToken,
+      chat_controller.contacts
+    );
+
     // Adicionar um novo contato
     this.app.post(
       "/contacts/add",
@@ -86,10 +93,12 @@ class Routes {
         let len = this.users.length;
         len--;
 
-        this.io.emit("user_list", this.users, this.users[len].id);
+        this.io.emit("online_user_list", this.users, this.users[len].id);
       });
 
       socket.on("get_msg", (data) => {
+        console.log(data);
+        console.log(this.users);
         socket.broadcast.to(data.toid).emit("send_msg", data);
       });
 

@@ -218,7 +218,7 @@ module.exports = {
       await chat.save();
 
       const chatExists = await Message.findOne({ chat_id: chat_id });
-      console.log(chatExists);
+
       if (!chatExists) {
         const messageDB = new Message({
           chat_id,
@@ -264,6 +264,26 @@ module.exports = {
     } catch (error) {
       console.log(error);
       response.status(500).json({ error: error.message });
+    }
+  },
+
+  async contacts(request, response) {
+    try {
+      const myUser = await identifyUser(request);
+      const contacts = myUser.contacts;
+
+      // Validações
+      if (!contacts) {
+        return response
+          .status(200)
+          .json({ msg: "Você não possui nenhum contato." });
+      }
+
+      return response.status(200).json({ contacts: contacts });
+      // const contactsList = await User.find({ members: { $all: [number] } });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json({ error: err.message });
     }
   },
 };
