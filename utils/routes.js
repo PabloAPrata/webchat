@@ -90,19 +90,15 @@ class Routes {
       // FUNÇÕES PARA WEBSOCKET
 
       function check_event_losted(user) {
-        console.log(user);
         for (let i = 0; i < events_losted.length; i++) {
-          console.log(user === events_losted[i].members);
           if (user === events_losted[i].members) {
-            console.log(get_id_by_number(events_losted[i].members));
             io_extra
               .to(get_id_by_number(events_losted[i].members))
               .emit("unread messages", events_losted[i]);
-            console.log(events_losted[i]);
+
             events_losted.splice(i, 1);
           }
         }
-        console.log(online_users);
       }
 
       function send_message_to(data) {
@@ -112,7 +108,7 @@ class Routes {
             if (!send) {
               if (number === element.user.number) {
                 send = true;
-                console.log("Enviou mensagem para : " + number);
+
                 socket.broadcast
                   .to(get_id_by_number(element.user.number))
                   .emit("send_msg", data);
@@ -120,7 +116,6 @@ class Routes {
             }
           });
           if (!send) {
-            console.log("Não conseguiu enviar para: " + number);
             persistir_evento(data, number);
           }
         });

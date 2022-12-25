@@ -18,8 +18,6 @@ document
       metodo: "post",
       body: values,
       sucesso(resposta) {
-        console.log(resposta);
-
         // Se estiver tudo correto com o login, entrará no chat!
         if (resposta.code === 200) {
           const msg = JSON.parse(resposta.data).msg;

@@ -51,6 +51,8 @@ module.exports = {
         name = "";
       }
 
+      members.sort();
+
       const chatExists = await Chat.findOne({ members: members });
 
       // Se existir
@@ -105,7 +107,7 @@ module.exports = {
 
       // Se não houver chat para este usuário
       return response
-        .status(404)
+        .status(204)
         .json({ msg: "Nenhum chat encontrado com esse usuário" });
     } catch (err) {
       console.log(err);

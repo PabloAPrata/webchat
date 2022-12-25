@@ -51,7 +51,7 @@ function autentication(token) {
 // ----------------------------------------------------------------
 // ELEMENTOS DA DOM
 
-const ul = document.getElementById("container-list");
+const ul_chat = document.getElementById("container-list");
 const chat_container = document.getElementById("chat-container");
 const conversation_body = document.getElementById("conversation");
 const username_div = document.getElementById("your-name-header");
@@ -62,6 +62,7 @@ const side_search_icon = document.getElementById("side-search-icon");
 const side_more_vert = document.getElementById("more_vert");
 const menu_option = document.getElementById("menu_option");
 const filter_list = document.getElementById("filter_list");
+const side_contacts = document.getElementById("side-contacts");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -77,7 +78,6 @@ socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
 
 socket.on("unread messages", (event) => {
   setTimeout(() => {
-    console.log(event);
     alert(event.text);
   }, 1000);
 });
@@ -103,15 +103,14 @@ new_chat.addEventListener("click", (event) => {
   }, 100);
   section_contacts.style.display = "block";
 });
-
-side_arrow_back.addEventListener("click", (event) => {
+function close_side_contacts() {
   section_contacts.style.transform = null;
-  // section_contacts.style.opacity = null;
+
   setTimeout(() => {
-    // section_contacts.style.opacity = null;
     section_contacts.style.display = "none";
   }, 200);
-});
+}
+side_arrow_back.addEventListener("click", close_side_contacts);
 
 side_more_vert.addEventListener("click", () => {
   if (menu_option.style.display == "block") {
@@ -130,6 +129,23 @@ filter_list.addEventListener("click", (event) => {
     filter_list.style.color = "white";
   }
 });
+
+async function createChatAPI(arrayMembers) {
+  arrayMembers.sort();
+
+  return new Promise((resolve, reject) => {
+    ajax({
+      url: "/chat/create",
+      metodo: "post",
+      headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+      body: {
+        members: arrayMembers,
+      },
+      sucesso: resolve,
+      erro: reject,
+    });
+  });
+}
 
 function receive_message(data) {
   update_chat_on_list(data.chat_id, data.text, data.sender_name, new Date());
@@ -197,9 +213,8 @@ function get_name_user_by_number(number) {
 }
 
 function load_chats_list() {
-  ul.innerHTML = "";
+  ul_chat.innerHTML = "";
   z_index_chat_list = 0;
-  transform_chat_list = 0;
 
   chats_list.forEach(function (e) {
     let name = null;
@@ -228,6 +243,7 @@ function load_chats_list() {
     chat_li.setAttribute("id", e._id);
     chat_li.onclick = open_chat;
     chat_li.setAttribute("user_name", name);
+    last_message.className = "last-message";
 
     contact_info.appendChild(name_user);
     contact_info.appendChild(last_message);
@@ -246,11 +262,11 @@ function load_chats_list() {
 
     if (e.lmessage != 0) {
       time.textContent = e.lmessage.time;
-      last_message.className = "last-message";
+
       last_message.textContent = `${e.lmessage.sender_name}: ${e.lmessage.text}`;
     }
 
-    ul.appendChild(chat_li);
+    ul_chat.appendChild(chat_li);
   });
 
   return true;
@@ -285,11 +301,10 @@ function load_messages_chat(cached_messages, id) {
   const conversation_space = document.createElement("div");
   conversation_space.className = "conversation-panel-messages";
   conversation_space.setAttribute("id", "conversation-panel-messages");
-  // conversation_body.innerHTML = "";
   conversation_body.appendChild(conversation_space);
 
   // Verifica se existe chat no cache
-  const chat_cached = get_chat_cached(id);
+  const chat_cached = get_chat_by_id(id);
 
   if (!chat_cached) {
     const messages = get_database_messages(token, id);
@@ -473,6 +488,95 @@ function open_chat() {
   chat_selected = id;
 }
 
+function open_chat_by_contact() {
+  let id = this.id;
+  const div_contact = document.getElementById(id);
+
+  //Remove o nome contact
+  id = id.split("contact")[1];
+
+  let chatExists = get_chat_by_id(id);
+
+  // Se existir um chat com aquele ID, abre o chat e termina a função.
+  if (chatExists) {
+    id = chatExists._id;
+
+    load_header_chat(id);
+
+    load_messages_chat(cached_messages, id);
+
+    load_input_chat(id);
+
+    chat_selected_color(id);
+
+    close_side_contacts();
+
+    return;
+  }
+
+  // Se não existe com ID, verifica se há pelo membro
+  let arrayMembers = [account_info.number];
+  let numberContact = div_contact.getAttribute("user_number");
+  arrayMembers.push(numberContact);
+  arrayMembers.sort();
+
+  chatExists = get_chat_by_members(arrayMembers);
+
+  if (chatExists) {
+    id = chatExists._id;
+
+    load_header_chat(id);
+
+    load_messages_chat(cached_messages, id);
+
+    load_input_chat(id);
+
+    chat_selected_color(id);
+
+    close_side_contacts();
+
+    return;
+  }
+
+  // Cria um chat
+  createChatAPI(arrayMembers).then((resultado) => {
+    // Guarda o id do chat criado:
+    const newID = JSON.parse(resultado.data).id;
+
+    // Atualiza a lista de chats no cache:
+    get_chat_list(token).then((resposta) => {
+      const resposta_data = JSON.parse(resposta.data);
+
+      chats_list = [...resposta_data.chatsList];
+
+      load_chats_list();
+
+      load_header_chat(newID);
+
+      load_messages_chat(cached_messages, newID);
+
+      load_input_chat(newID);
+
+      chat_selected_color(newID);
+
+      close_side_contacts();
+
+      chat_selected = newID;
+    });
+  });
+}
+
+function get_chat_by_members(arrayMembers) {
+  let chat = false;
+  chats_list.forEach((e) => {
+    if (JSON.stringify(e.members) == JSON.stringify(arrayMembers)) {
+      chat = e;
+    }
+  });
+
+  return chat;
+}
+
 function put_chat_first(chat_id) {
   const notified_chat = document.getElementById(chat_id);
   if (notified_chat == null) return;
@@ -485,7 +589,7 @@ function put_chat_first(chat_id) {
 
   setTimeout(() => {
     notified_chat.remove();
-    ul.insertAdjacentElement("afterbegin", notified_chat_copy);
+    ul_chat.insertAdjacentElement("afterbegin", notified_chat_copy);
   }, 550);
 
   transform_chat_list = 71;
@@ -511,29 +615,39 @@ function update_chat_on_list(chat_id, text, user, time) {
   time_stamp.textContent = time;
 }
 
-let get_chatlist_1ft = false;
-function get_chat_list(token) {
-  ajax({
-    url: "/chat/list",
-    metodo: "get",
-    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
-    sucesso(resposta) {
-      if (resposta.code === 200) {
-        const resposta_data = JSON.parse(resposta.data);
-        chats_list = [...resposta_data.chatsList];
-
-        if (!get_chatlist_1ft) {
-          load_chats_list();
-          get_chatlist_1ft = true;
-        }
-      } else {
-      }
-    },
-    erro(erro) {
-      const msg = JSON.parse(erro.data).msg;
-      alert(msg);
-    },
+// let get_chatlist_1ft = false;
+async function get_chat_list(token) {
+  return new Promise((resolve, reject) => {
+    ajax({
+      url: "/chat/list",
+      metodo: "get",
+      headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+      sucesso: resolve,
+      erro: reject,
+    });
   });
+
+  // ajax({
+  //   url: "/chat/list",
+  //   metodo: "get",
+  //   headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+  //   sucesso(resposta) {
+  //     if (resposta.code === 200) {
+  //       const resposta_data = JSON.parse(resposta.data);
+  //       chats_list = [...resposta_data.chatsList];
+
+  //       if (!get_chatlist_1ft) {
+  //         load_chats_list();
+  //         get_chatlist_1ft = true;
+  //       }
+  //     } else {
+  //     }
+  //   },
+  //   erro(erro) {
+  //     const msg = JSON.parse(erro.data).msg;
+  //     alert(msg);
+  //   },
+  // });
 }
 
 function get_contacts_list(token) {
@@ -546,6 +660,8 @@ function get_contacts_list(token) {
         const resposta_data = JSON.parse(resposta.data);
 
         contacts_list = [...resposta_data.contacts];
+
+        inner_contacts_list();
       } else {
       }
     },
@@ -553,6 +669,39 @@ function get_contacts_list(token) {
       const msg = JSON.parse(erro.data).msg;
       alert(msg);
     },
+  });
+}
+
+function inner_contacts_list() {
+  // Limpa a lista.
+  side_contacts.innerHTML = "";
+
+  contacts_list.forEach((e) => {
+    const contacts_li = document.createElement("li");
+    const div_infos = document.createElement("div");
+    const contact_image = document.createElement("div");
+    const img = document.createElement("img");
+    const contact_info = document.createElement("div");
+    const name_user = document.createElement("div");
+
+    name_user.className = "name-user";
+    name_user.textContent = e.name;
+    contact_info.className = "contact-info";
+    img.setAttribute("src", "../image/user-3296.svg");
+    contact_image.className = "contact-image";
+    contacts_li.setAttribute("id", "contact" + e._id);
+    contacts_li.onclick = open_chat_by_contact;
+    contacts_li.setAttribute("user_name", e.name);
+    contacts_li.setAttribute("user_number", e.number);
+
+    contact_info.appendChild(name_user);
+    contact_image.appendChild(img);
+    div_infos.appendChild(contact_image);
+    div_infos.appendChild(contact_info);
+    contacts_li.appendChild(div_infos);
+    contacts_li.classList.add("li-contacts");
+
+    side_contacts.appendChild(contacts_li);
   });
 }
 
@@ -598,7 +747,7 @@ function put_message_cache(chat_id, message) {
   }
 }
 
-function get_chat_cached(chat_id) {
+function get_chat_by_id(chat_id) {
   const size = cached_messages.length;
   let chat = null;
   for (let i = 0; i < size; i++) {
@@ -632,5 +781,15 @@ function get_url_id() {
 }
 
 autentication(token);
-get_chat_list(token);
+get_chat_list(token).then((resposta) => {
+  console.log();
+
+  // Se não possuit chat
+  if (resposta.code === 204) return;
+
+  const resposta_data = JSON.parse(resposta.data);
+  chats_list = [...resposta_data.chatsList];
+
+  load_chats_list();
+});
 get_contacts_list(token);

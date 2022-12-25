@@ -33,5 +33,3 @@ export function ajax(config) {
 
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
-
-// setRequestHeader(header, value)

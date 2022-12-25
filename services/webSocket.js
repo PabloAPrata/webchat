@@ -16,8 +16,6 @@ module.exports = {
       });
 
       socket.on("get_msg", (data) => {
-        console.log(data);
-        console.log(this.users);
         socket.broadcast.to(data.toid).emit("send_msg", data);
       });
 
