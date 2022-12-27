@@ -107,7 +107,7 @@ body {
 .chatlist-header {
   display: flex;
   align-items: center;
-  height: 59px;
+  height: 60px;
   border-bottom: 0.5px solid rgb(51, 51, 51);
   justify-content: space-between;
   background-color: #1f2c33;
@@ -289,7 +289,8 @@ img {
 .conversation-panel-messages {
   height: calc(100% - 140px);
   width: 100%;
-  background-image: url(../image/backgroundChat.png);
+  /* background-image: url(../image/backgroundChat.png); */
+  background-color: #131e25;
   background-position: left top;
   background-size: auto;
   background-repeat: repeat;

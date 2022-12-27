@@ -1,5 +1,7 @@
 // VARIÁVEIS GLOBAIS
 import { ajax } from "./ajax.js";
+import "https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js";
+import insertText from "https://cdn.jsdelivr.net/npm/insert-text-at-cursor@0.3.0/index.js";
 
 let cached_messages = [];
 let z_index_chat_list = 0;
@@ -20,34 +22,6 @@ const account_info = {
   number: null,
   text: "Nothing",
 };
-
-function autentication(token) {
-  const id = get_url_id();
-
-  ajax({
-    url: "/user/" + id,
-    metodo: "get",
-    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
-    sucesso(resposta) {
-      if (resposta.code === 200) {
-        const user = JSON.parse(resposta.data).user;
-        account_info.name = user.name;
-        account_info.number = user.number;
-        account_info.socket_id = user._id;
-
-        username_div.textContent = account_info.name;
-        socket.emit("register", account_info);
-      } else {
-      }
-    },
-    erro(erro) {
-      // const msg = JSON.parse(erro.data);
-      console.log(erro);
-      // alert(msg);
-      // window.location.pathname = "/";
-    },
-  });
-}
 
 // ----------------------------------------------------------------
 // ELEMENTOS DA DOM
@@ -98,8 +72,7 @@ socket.on("send_msg", (data) => {
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
-//----------------------------------------------------------------
-//----------------------------------------------------------------
+
 // BOTÕES DA INTERFACE - INTERAÇÕES
 
 new_chat.addEventListener("click", (event) => {
@@ -135,6 +108,31 @@ filter_list.addEventListener("click", (event) => {
     filter_list.style.color = "white";
   }
 });
+
+function autentication(token) {
+  const id = get_url_id();
+
+  ajax({
+    url: "/user/" + id,
+    metodo: "get",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    sucesso(resposta) {
+      if (resposta.code === 200) {
+        const user = JSON.parse(resposta.data).user;
+        account_info.name = user.name;
+        account_info.number = user.number;
+        account_info.socket_id = user._id;
+
+        username_div.textContent = account_info.name;
+        socket.emit("register", account_info);
+      } else {
+      }
+    },
+    erro(erro) {
+      console.log(erro);
+    },
+  });
+}
 
 async function createChatAPI(arrayMembers) {
   arrayMembers.sort();
@@ -402,8 +400,6 @@ function send_message(text, chat_id) {
 
   let members = get_members_by_chat_id(chat_id);
 
-  // members = remove_my_number(members);
-
   const msg = {
     sender_name: account_info.name,
     sender_number: account_info.number,
@@ -450,6 +446,73 @@ function send_message(text, chat_id) {
   conversation_space.scrollTop = conversation_space.scrollHeight;
 }
 
+// EMOJIS
+
+function create_emoji_picker() {
+  const element_body = document.querySelector("body");
+
+  // Cria o emoji_overlay
+  const emoji_overlay = document.createElement("div");
+  emoji_overlay.setAttribute("id", "emoji-overlay");
+  emoji_overlay.style.position = "fixed";
+  emoji_overlay.style.height = "100vh";
+  emoji_overlay.style.width = "100vw";
+  emoji_overlay.style.backgroundColor = "transparent";
+  emoji_overlay.style.bottom = "60px";
+  emoji_overlay.addEventListener("click", button_emoji_picker);
+
+  // Cria o emoji_picker
+  const emoji_picker = document.createElement("emoji-picker");
+  emoji_picker.classList.add("dark");
+  emoji_picker.style.position = "absolute";
+  emoji_picker.style.bottom = "0";
+  emoji_picker.style.left = "30%";
+
+  // Insere o emoji_picker dentro do overlay
+  emoji_overlay.appendChild(emoji_picker);
+
+  element_body.insertAdjacentElement("beforeend", emoji_overlay);
+
+  document
+    .querySelector("emoji-picker")
+    .addEventListener("emoji-click", (e) => {
+      insertText(
+        document.getElementById("input_text_message"),
+        e.detail.unicode
+      );
+    });
+}
+
+function hide_emoji_picker() {
+  const emoji_overlay = document.getElementById("emoji-overlay");
+
+  emoji_overlay.style.display = "none";
+}
+
+function show_emoji_picker() {
+  const emoji_overlay = document.getElementById("emoji-overlay");
+
+  emoji_overlay.style.display = "block";
+}
+
+function button_emoji_picker() {
+  const emoji_overlay = document.getElementById("emoji-overlay");
+
+  // Verifica se existe
+  if (emoji_overlay) {
+    // Se existir
+    // Se tiver escondido aparecerá
+    if (emoji_overlay.style.display === "none") {
+      show_emoji_picker();
+    } else {
+      hide_emoji_picker();
+    }
+    return;
+  }
+
+  create_emoji_picker();
+}
+
 function load_input_chat(chat_id) {
   const area = document.createElement("div");
   const button_emoji = document.createElement("button");
@@ -458,12 +521,16 @@ function load_input_chat(chat_id) {
   const button_send = document.createElement("button");
   const send_icon = document.createElement("span");
 
+  input_text.setAttribute("id", "input_text_message");
+
   area.className = "conversation-input-area";
   button_emoji.className = "emojis-input";
   emoji_icon.className = "material-icons";
   input_text.className = "conversation-input";
   button_send.className = "button-send";
   send_icon.className = "material-icons";
+
+  button_emoji.addEventListener("click", button_emoji_picker);
 
   input_text.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
@@ -643,7 +710,6 @@ function update_chat_on_list(chat_id, text, user, time) {
   time_stamp.textContent = time;
 }
 
-// let get_chatlist_1ft = false;
 async function get_chat_list(token) {
   return new Promise((resolve, reject) => {
     ajax({

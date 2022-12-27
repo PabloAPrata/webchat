@@ -16,7 +16,13 @@ body {
 }
 
 body {
-  background-image: url(../image/backgroundLogin.jpg);
+  background: rgb(88, 101, 242);
+  background: radial-gradient(
+    circle,
+    rgb(46 52 116) 0%,
+    rgba(6, 40, 56, 1) 100%,
+    rgba(72, 102, 117, 1) 100%
+  );
   display: flex;
   justify-content: center;
   align-items: center;

@@ -2,6 +2,7 @@ module.exports = () => {
   const socketio = require("socket.io");
   const server = require("../app");
   const io = socketio(server);
+  const io_extra = null;
 
   let online_users = [];
   let events_losted = [];
@@ -12,9 +13,10 @@ module.exports = () => {
     function check_event_losted(user) {
       for (let i = 0; i < events_losted.length; i++) {
         if (user === events_losted[i].members) {
-          io_extra
-            .to(get_id_by_number(events_losted[i].members))
-            .emit("unread messages", events_losted[i]);
+          io.to(get_id_by_number(events_losted[i].members)).emit(
+            "unread messages",
+            events_losted[i]
+          );
 
           events_losted.splice(i, 1);
         }
