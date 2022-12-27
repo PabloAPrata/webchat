@@ -1,16 +1,10 @@
-require('dotenv').config
+require("dotenv").config();
+const mongoose = require("mongoose");
+const boot = require("./src/services/boot");
+const config = require("./src/configs");
 
-const bootServer = require('./services/boot');
-const app = new bootServer();
-const mongoose = require('mongoose');
-const db = require('./private/db');
-
-if(db.connectionString) {
-  mongoose.connect(db.connectionString, app.appExecute());
+if (config.db.connectionString) {
+  mongoose.connect(config.db.connectionString, boot);
 } else {
-  console.log("No connection string provided");
+  console.log("Couldn't connect to Mongoose");
 }
-
-
-
-
