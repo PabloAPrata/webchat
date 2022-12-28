@@ -36,6 +36,7 @@ const side_arrow_back = document.getElementById("side_arrow_back");
 const side_search_icon = document.getElementById("side-search-icon");
 const side_more_vert = document.getElementById("more_vert");
 const menu_option = document.getElementById("menu_option");
+const overlay_menu_option = document.getElementById("overlay_menu_option");
 const filter_list = document.getElementById("filter_list");
 const side_contacts = document.getElementById("side-contacts");
 
@@ -54,6 +55,8 @@ socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
     socket_id = socket_id_coming;
   }
   online_user_list = online_user_list_coming;
+
+  put_status_contacts(online_user_list);
 });
 
 socket.on("unread messages", (event) => {
@@ -64,6 +67,7 @@ socket.on("unread messages", (event) => {
 
 socket.on("exit", (online_user_list_coming) => {
   online_user_list = online_user_list_coming;
+  put_status_contacts(online_user_list);
 });
 
 socket.on("send_msg", (data) => {
@@ -91,23 +95,44 @@ function close_side_contacts() {
 }
 side_arrow_back.addEventListener("click", close_side_contacts);
 
+overlay_menu_option.addEventListener("click", (event) => {
+  if (event.target === overlay_menu_option)
+    overlay_menu_option.style.display = "none";
+});
+
 side_more_vert.addEventListener("click", () => {
   if (menu_option.style.display == "block") {
-    menu_option.style.display = "none";
+    overlay_menu_option.style.display = "none";
   } else {
-    menu_option.style.display = "block";
+    overlay_menu_option.style.display = "block";
   }
 });
 
 filter_list.addEventListener("click", (event) => {
-  if (filter_list.style.background == "rgb(4, 167, 132)") {
+  if (filter_list.style.background == "rgb(88, 101, 242)") {
     filter_list.style.background = null;
     filter_list.style.color = null;
   } else {
-    filter_list.style.background = "rgb(4, 167, 132)";
+    filter_list.style.background = "rgb(88, 101, 242)";
     filter_list.style.color = "white";
   }
 });
+
+function put_status_contacts(online_user_list) {
+  const status_contacts = document.querySelectorAll(".status-contact");
+
+  online_user_list.forEach((e) => {
+    const user_number = e.user.number;
+
+    status_contacts.forEach((status_contact) => {
+      const contact = status_contact.getAttribute("number");
+
+      if (contact == user_number) {
+        status_contact.classList.add("online");
+      }
+    });
+  });
+}
 
 function autentication(token) {
   const id = get_url_id();
@@ -258,6 +283,7 @@ function load_chats_list() {
     const name_user = document.createElement("div");
     const last_message = document.createElement("div");
     const time = document.createElement("div");
+    const status = document.createElement("div");
 
     time.className = "time-stamp";
 
@@ -266,6 +292,8 @@ function load_chats_list() {
     contact_info.className = "contact-info";
     img.setAttribute("src", "../image/user-3296.svg");
     contact_image.className = "contact-image";
+    status.className = "status-contact";
+    status.setAttribute("number", other_members[0]);
     chat_li.setAttribute("id", e._id);
     chat_li.onclick = open_chat;
     chat_li.setAttribute("user_name", name);
@@ -274,6 +302,7 @@ function load_chats_list() {
     contact_info.appendChild(name_user);
     contact_info.appendChild(last_message);
     contact_image.appendChild(img);
+    contact_image.appendChild(status);
     div_infos.appendChild(contact_image);
     div_infos.appendChild(contact_info);
     chat_li.appendChild(div_infos);
@@ -749,12 +778,14 @@ function inner_contacts_list() {
   side_contacts.innerHTML = "";
 
   contacts_list.forEach((e) => {
+    console.log(e);
     const contacts_li = document.createElement("li");
     const div_infos = document.createElement("div");
     const contact_image = document.createElement("div");
     const img = document.createElement("img");
     const contact_info = document.createElement("div");
     const name_user = document.createElement("div");
+    const status = document.createElement("div");
 
     name_user.className = "name-user";
     name_user.textContent = e.name;
@@ -765,9 +796,12 @@ function inner_contacts_list() {
     contacts_li.onclick = open_chat_by_contact;
     contacts_li.setAttribute("user_name", e.name);
     contacts_li.setAttribute("user_number", e.number);
+    status.className = "status-contact";
+    status.setAttribute("number", e.number);
 
     contact_info.appendChild(name_user);
     contact_image.appendChild(img);
+    contact_image.appendChild(status);
     div_infos.appendChild(contact_image);
     div_infos.appendChild(contact_info);
     contacts_li.appendChild(div_infos);
