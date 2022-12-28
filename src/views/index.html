@@ -23,6 +23,7 @@
               Nome do Usuário
             </p>
           </div>
+          <span id="new-contact" class="material-icons"> person_add </span>
           <span
             id="new-chat"
             class="material-icons"
@@ -38,7 +39,6 @@
           </div>
           <div id="overlay_menu_option" class="overlay_menu_options">
             <ul id="menu_option" class="menu_option">
-              <li id="new-contact-button">Adicionar Contato</li>
               <li id="new-group-button">Novo grupo</li>
               <li id="desconnect-button">Desconectar</li>
             </ul>
@@ -47,10 +47,19 @@
         <div class="container-search-chat">
           <span id="search-icon" class="material-icons"> search </span>
           <input
+            id="input_search_chat"
             title="Caixa de texto de pesquisa"
             type="text"
             placeholder="Pesquisar ou começar uma nova conversa"
           />
+          <span
+            id="clear_search_chat"
+            class="material-icons"
+            style="display: none"
+            title="Fechar pequisa"
+          >
+            clear
+          </span>
           <span
             id="filter_list"
             class="material-icons"
@@ -59,7 +68,10 @@
             filter_list
           </span>
         </div>
-        <ul id="container-list" class="container-list"></ul>
+        <div class="section-chats">
+          <ul id="container_search_chat" class="container_search_chat"></ul>
+          <ul id="container-list" class="container-list"></ul>
+        </div>
       </section>
 
       <section id="section-contacts" class="section-contacts">
@@ -77,12 +89,31 @@
             title="Caixa de texto de pesquisa"
             type="text"
             placeholder="Pesquisar contatos"
+            style="margin-right: 3%"
           />
-          <span class="material-icons" title="Filtro conversas não lidas">
-            filter_list
-          </span>
         </div>
         <ul id="side-contacts" class="side-contacts"></ul>
+      </section>
+
+      <section id="new-contact-div" class="left-side-menu">
+        <header class="contactslist-header">
+          <div class="container-side-title">
+            <span id="new_contact_side_back" class="material-icons">
+              arrow_back
+            </span>
+            <h1>Adicione um contato.</h1>
+          </div>
+        </header>
+        <div class="container-search-chat">
+          <span id="contact-search-icon" class="material-icons"> search </span>
+          <input
+            id="input_new_contact"
+            title="Caixa de texto de pesquisa"
+            type="text"
+            placeholder="Digite o número do contato"
+          />
+          <span id="search_button" class="material-icons"> person_search </span>
+        </div>
       </section>
 
       <section id="conversation" class="conversation">
@@ -90,9 +121,6 @@
         <p class="text-start">Envie e receba mensagens para seus amigos.</p>
       </section>
 
-      <!-- <div class="overlay-add-contact">
-        <div class="menu-add-contact"></div>
-      </div> -->
       <script src="../scripts/socket.io/client-dist/socket.io.js"></script>
       <script src="../scripts/chat.js" type="module"></script>
     </main>

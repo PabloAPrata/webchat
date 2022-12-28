@@ -39,6 +39,13 @@ const menu_option = document.getElementById("menu_option");
 const overlay_menu_option = document.getElementById("overlay_menu_option");
 const filter_list = document.getElementById("filter_list");
 const side_contacts = document.getElementById("side-contacts");
+const input_search_chat = document.getElementById("input_search_chat");
+const container_search_chat = document.getElementById("container_search_chat");
+const clear_search_chat_button = document.getElementById("clear_search_chat");
+const new_contact = document.getElementById("new-contact");
+const new_contact_div = document.getElementById("new-contact-div");
+const new_contact_side_back = document.getElementById("new_contact_side_back");
+const search_button = document.getElementById("search_button");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -47,7 +54,7 @@ const socket = io.connect();
 
 socket.on("connect", () => {
   const mySocketID = socket.id;
-  console.log("Connected to socket: " + mySocketID);
+  // console.log("Connected to socket: " + mySocketID);
 });
 
 socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
@@ -117,6 +124,38 @@ filter_list.addEventListener("click", (event) => {
     filter_list.style.color = "white";
   }
 });
+
+input_search_chat.addEventListener("keypress", function () {
+  search_for_chat();
+});
+
+input_search_chat.addEventListener("focus", function () {
+  container_search_chat.style.display = "block";
+  clear_search_chat_button.style.display = "block";
+  filter_list.style.display = "none";
+});
+
+clear_search_chat_button.addEventListener("click", function () {
+  clear_search_chat();
+});
+
+new_contact.addEventListener("click", function () {
+  new_contact_div.style.transform = "translateX(0px)";
+});
+
+new_contact_side_back.addEventListener("click", function () {
+  new_contact_div.style.transform = null;
+});
+
+//================================================================
+
+function clear_search_chat() {
+  container_search_chat.style.display = "none";
+  clear_search_chat_button.style.display = "none";
+  filter_list.style.display = "block";
+  input_search_chat.value = "";
+  container_search_chat.innerHTML = "";
+}
 
 function put_status_contacts(online_user_list) {
   const status_contacts = document.querySelectorAll(".status-contact");
@@ -199,7 +238,8 @@ function receive_message(data) {
     load_chats_list();
   }
 
-  update_chat_on_list(data.chat_id, data.text, data.sender_name, new Date());
+  const time = formatted_time(data.time);
+  update_chat_on_list(data.chat_id, data.text, data.sender_name, "agora");
   put_chat_first(data.chat_id);
   // save_message_on_storage(data);
 
@@ -225,6 +265,8 @@ function get_members_by_chat_id(chat_id) {
 function append_new_message(data) {
   const container_message_other = document.createElement("div");
   const other_message = document.createElement("div");
+  const text_message = document.createElement("div");
+  const time_message = document.createElement("div");
 
   const conversation_space = document.getElementById(
     "conversation-panel-messages"
@@ -232,8 +274,14 @@ function append_new_message(data) {
 
   container_message_other.className = "they-message-container";
   other_message.className = "they-message message-baloon";
+  text_message.className = "text-message";
+  time_message.className = "time-message";
 
-  other_message.textContent = data.text;
+  text_message.textContent = data.text;
+  time_message.textContent = get_current_time();
+
+  other_message.appendChild(text_message);
+  other_message.appendChild(time_message);
   container_message_other.appendChild(other_message);
 
   conversation_space.appendChild(container_message_other);
@@ -273,6 +321,7 @@ function load_chats_list() {
 
     if (other_members.length === 1) {
       name = get_name_user_by_number(other_members[0]);
+      e.name = name;
     }
 
     const chat_li = document.createElement("li");
@@ -316,7 +365,7 @@ function load_chats_list() {
     transform_chat_list = transform_chat_list + 71;
 
     if (e.lmessage != 0) {
-      time.textContent = e.lmessage.time;
+      time.textContent = formatted_time(e.lmessage.time);
 
       last_message.textContent = `${e.lmessage.sender_name}: ${e.lmessage.text}`;
     }
@@ -375,22 +424,38 @@ function load_messages_chat(cached_messages, id) {
         if (e.sender_number == account_info.number) {
           const container_message_self = document.createElement("div");
           const self_message = document.createElement("div");
+          const text_message = document.createElement("div");
+          const time_message = document.createElement("div");
 
           container_message_self.className = "self-message-container";
           self_message.className = "self-message message-baloon";
+          text_message.className = "text-message";
+          time_message.className = "time-message";
 
-          self_message.textContent = e.text;
+          text_message.textContent = e.text;
+          time_message.textContent = formatted_time(e.time);
+
+          self_message.appendChild(text_message);
+          self_message.appendChild(time_message);
           container_message_self.appendChild(self_message);
 
           conversation_space.appendChild(container_message_self);
         } else {
           const container_message_other = document.createElement("div");
           const other_message = document.createElement("div");
+          const text_message = document.createElement("div");
+          const time_message = document.createElement("div");
 
           container_message_other.className = "they-message-container";
           other_message.className = "they-message message-baloon";
+          text_message.className = "text-message";
+          time_message.className = "time-message";
 
-          other_message.textContent = e.text;
+          text_message.textContent = e.text;
+          time_message.textContent = formatted_time(e.time);
+
+          other_message.appendChild(text_message);
+          other_message.appendChild(time_message);
           container_message_other.appendChild(other_message);
 
           conversation_space.appendChild(container_message_other);
@@ -425,6 +490,9 @@ function persist_message_db(chat_id, text) {
 
 function send_message(text, chat_id) {
   if (text == "") return;
+
+  clear_search_chat();
+
   let input = document.getElementsByClassName("conversation-input")[0];
 
   let members = get_members_by_chat_id(chat_id);
@@ -454,11 +522,19 @@ function send_message(text, chat_id) {
 
   const container_message_self = document.createElement("div");
   const self_message = document.createElement("div");
+  const text_message = document.createElement("div");
+  const time_message = document.createElement("div");
 
   container_message_self.className = "self-message-container";
   self_message.className = "self-message message-baloon";
+  text_message.className = "text-message";
+  time_message.className = "time-message";
 
-  self_message.textContent = text;
+  text_message.textContent = text;
+  time_message.textContent = get_current_time();
+
+  self_message.appendChild(text_message);
+  self_message.appendChild(time_message);
   container_message_self.appendChild(self_message);
 
   conversation_space.appendChild(container_message_self);
@@ -468,7 +544,8 @@ function send_message(text, chat_id) {
   // save_message_on_storage(msg);
   input.value = "";
 
-  update_chat_on_list(chat_id, text, account_info.name, new Date());
+  const time = formatted_time(new Date());
+  update_chat_on_list(chat_id, text, account_info.name, time);
   put_chat_first(chat_id);
   chat_selected_color(chat_id);
   conversation_space.style.scrollBehavior = "smooth";
@@ -778,7 +855,6 @@ function inner_contacts_list() {
   side_contacts.innerHTML = "";
 
   contacts_list.forEach((e) => {
-    console.log(e);
     const contacts_li = document.createElement("li");
     const div_infos = document.createElement("div");
     const contact_image = document.createElement("div");
@@ -886,8 +962,6 @@ function get_url_id() {
   return id.split("home/")[1];
 }
 
-autentication(token);
-
 get_chat_list(token).then((resposta) => {
   // Se não possuit chat
   if (resposta.code === 204) return;
@@ -898,4 +972,156 @@ get_chat_list(token).then((resposta) => {
   load_chats_list();
 });
 
+// !! FUNÇÕES DAS DATAS
+// ? =================================================================================
+
+// * DD/MM/AA
+function get_current_date() {
+  let data = new Date();
+  let dataFormatada = data.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+
+  return dataFormatada;
+}
+
+function get_current_year() {
+  let data = new Date();
+
+  let year = data.toLocaleDateString("pt-BR", {
+    year: "2-digit",
+  });
+
+  return year;
+}
+
+function get_current_time() {
+  let data = new Date();
+  let horas = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return horas;
+}
+
+function formatted_time(time) {
+  let newTime = new Date(time);
+
+  //
+  let time_date = newTime.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+
+  let time_year = newTime.toLocaleDateString("pt-BR", {
+    year: "2-digit",
+  });
+
+  let time_only_time = newTime.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  // SE FOR A MESMA DATA DE HOJE, RETORNA A HORA APENAS.
+  if (time_date === get_current_date()) {
+    return time_only_time;
+  }
+
+  // SE FOR ESTE MESMO ANO, RETORNA A DATA SEM O ANO.
+  if (time_year === get_current_year()) {
+    let without_year = newTime.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+
+    return without_year;
+  }
+
+  return time_date;
+}
+
+function search_for_chat() {
+  const string = input_search_chat.value.toLowerCase();
+
+  // Filtra os chats de acordo com os caracteres digitados no input
+  const chats_filtered = chats_list.filter((element) => {
+    return element.name.toLowerCase().includes(string);
+  });
+
+  // Trata os chats encontrados para mostrar na tela
+  const displayChats = (contacts) => {
+    const elementosHTML = contacts.map((e) => {
+      let name = null;
+
+      container_search_chat.innerHTML = "";
+
+      const other_members = remove_my_number(e.members);
+      if (other_members.length === 1) {
+        name = get_name_user_by_number(other_members[0]);
+        e.name = name;
+      }
+
+      const chat_li = document.createElement("li");
+      const div_infos = document.createElement("div");
+      const contact_image = document.createElement("div");
+      const img = document.createElement("img");
+      const contact_info = document.createElement("div");
+      const name_user = document.createElement("div");
+      const last_message = document.createElement("div");
+      const time = document.createElement("div");
+      const status = document.createElement("div");
+
+      time.className = "time-stamp";
+
+      name_user.className = "name-user";
+      name_user.textContent = name;
+      contact_info.className = "contact-info";
+      img.setAttribute("src", "../image/user-3296.svg");
+      contact_image.className = "contact-image";
+      status.className = "status-contact";
+      status.setAttribute("number", other_members[0]);
+      chat_li.setAttribute("id", e._id);
+      chat_li.onclick = open_chat;
+      chat_li.setAttribute("user_name", name);
+      last_message.className = "last-message";
+
+      contact_info.appendChild(name_user);
+      contact_info.appendChild(last_message);
+      contact_image.appendChild(img);
+      contact_image.appendChild(status);
+      div_infos.appendChild(contact_image);
+      div_infos.appendChild(contact_info);
+      chat_li.appendChild(div_infos);
+      chat_li.appendChild(time);
+      chat_li.classList.add("li-chat");
+
+      if (e.lmessage != 0) {
+        time.textContent = formatted_time(e.lmessage.time);
+
+        last_message.textContent = `${e.lmessage.sender_name}: ${e.lmessage.text}`;
+      }
+
+      return chat_li;
+    });
+
+    elementosHTML.forEach((element) =>
+      container_search_chat.appendChild(element)
+    );
+
+    // Se nenhum chat for encontrado:
+    // if (chats_filtered == 0) {
+
+    // }
+  };
+
+  displayChats(chats_filtered);
+}
+
+// ?=================================================================
+// Inicialização do programa
+autentication(token);
 get_contacts_list(token);
