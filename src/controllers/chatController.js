@@ -147,7 +147,7 @@ const ChatController = {
       });
 
       if (alreadyOnList) {
-        return response.status(422).json({
+        return response.status(200).json({
           msg: "Você já possui essa pessoa na sua lista de contatos!",
         });
       }

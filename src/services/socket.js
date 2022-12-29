@@ -80,10 +80,6 @@ module.exports = () => {
     });
 
     socket.on("get_msg", (data) => {
-      // data.members.forEach((number) => {
-      //   socket.broadcast.to(get_id_by_number(number)).emit("send_msg", data);
-      // });
-
       send_message_to(data);
     });
 

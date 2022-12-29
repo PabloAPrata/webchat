@@ -23,7 +23,13 @@
               Nome do Usuário
             </p>
           </div>
-          <span id="new-contact" class="material-icons"> person_add </span>
+          <span
+            id="new-contact"
+            title="Adicionar um novo contato."
+            class="material-icons"
+          >
+            person_add
+          </span>
           <span
             id="new-chat"
             class="material-icons"
@@ -115,14 +121,13 @@
           <span id="search_button" class="material-icons"> person_search </span>
         </div>
       </section>
-
       <section id="conversation" class="conversation">
         <h1>Converse</h1>
         <p class="text-start">Envie e receba mensagens para seus amigos.</p>
       </section>
-
-      <script src="../scripts/socket.io/client-dist/socket.io.js"></script>
-      <script src="../scripts/chat.js" type="module"></script>
     </main>
+    <audio id="sound_new_message" src="../sounds/new_message.mp3"></audio>
+    <script src="../scripts/socket.io/client-dist/socket.io.js"></script>
+    <script src="../scripts/chat.js" type="module"></script>
   </body>
 </html>

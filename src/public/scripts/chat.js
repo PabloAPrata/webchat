@@ -23,6 +23,12 @@ const account_info = {
   text: "Nothing",
 };
 
+// SONS
+
+// Som de notificação
+// Obter uma referência ao elemento audio
+const sound_new_message = document.getElementById("sound_new_message");
+
 // ----------------------------------------------------------------
 // ELEMENTOS DA DOM
 
@@ -46,6 +52,7 @@ const new_contact = document.getElementById("new-contact");
 const new_contact_div = document.getElementById("new-contact-div");
 const new_contact_side_back = document.getElementById("new_contact_side_back");
 const search_button = document.getElementById("search_button");
+const input_new_contact = document.getElementById("input_new_contact");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -147,7 +154,76 @@ new_contact_side_back.addEventListener("click", function () {
   new_contact_div.style.transform = null;
 });
 
+search_button.addEventListener("click", function () {
+  add_contact_api();
+});
+
+input_new_contact.onkeydown = () => applyPhoneMask(event);
+
 //================================================================
+
+function applyPhoneMask(event) {
+  let tecla = event.key;
+  let telefone = event.target.value.replace(/\D+/g, "");
+
+  if (/^[0-9]$/i.test(tecla)) {
+    telefone = telefone + tecla;
+    let tamanho = telefone.length;
+
+    if (tamanho >= 12) {
+      return false;
+    }
+
+    if (tamanho > 10) {
+      telefone = telefone.replace(/^(\d\d)(\d{5})(\d{4}).*/, "($1) $2-$3");
+    } else if (tamanho > 5) {
+      telefone = telefone.replace(/^(\d\d)(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+    } else if (tamanho > 2) {
+      telefone = telefone.replace(/^(\d\d)(\d{0,5})/, "($1) $2");
+    } else {
+      telefone = telefone.replace(/^(\d*)/, "($1");
+    }
+
+    event.target.value = telefone;
+  }
+
+  if (!["Backspace", "Delete"].includes(tecla)) {
+    return false;
+  }
+}
+
+function add_contact_api() {
+  const number = input_new_contact.value;
+
+  if (!number) {
+    alert("Por favor, insira um número");
+  }
+
+  ajax({
+    url: "/contacts/add",
+    metodo: "post",
+    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+    body: {
+      number: number,
+    },
+    sucesso(resposta) {
+      console.log(resposta);
+      if (resposta.code === 201 || resposta.code === 200) {
+        const msg = JSON.parse(resposta.data).msg;
+        alert(msg);
+
+        get_contacts_list(token);
+        input_new_contact.value = "";
+        new_contact_div.style.transform = null;
+      }
+    },
+    erro(resposta) {
+      let msg = JSON.parse(resposta.data).msg;
+      alert(msg);
+      input_new_contact.value = "";
+    },
+  });
+}
 
 function clear_search_chat() {
   container_search_chat.style.display = "none";
@@ -157,10 +233,12 @@ function clear_search_chat() {
   container_search_chat.innerHTML = "";
 }
 
-function put_status_contacts(online_user_list) {
+function put_status_contacts(users_on) {
   const status_contacts = document.querySelectorAll(".status-contact");
 
-  online_user_list.forEach((e) => {
+  if (!users_on) users_on = online_user_list;
+
+  users_on.forEach((e) => {
     const user_number = e.user.number;
 
     status_contacts.forEach((status_contact) => {
@@ -245,6 +323,12 @@ function receive_message(data) {
 
   if (data.chat_id == chat_selected) {
     append_new_message(data);
+  }
+
+  const isOpen = chat.classList.contains("chat-selected");
+  if (!isOpen) {
+    notification_bubble(data.chat_id);
+    sound_new_message.play();
   }
 }
 
@@ -333,9 +417,14 @@ function load_chats_list() {
     const last_message = document.createElement("div");
     const time = document.createElement("div");
     const status = document.createElement("div");
+    const container_time_notification = document.createElement("div");
+    const circle_notification = document.createElement("div");
 
+    container_time_notification.className = "container_time_notification";
+    circle_notification.className = "circle_notification";
+    circle_notification.setAttribute("id", "ntf_" + e._id);
     time.className = "time-stamp";
-
+    time.setAttribute("id", "time_" + e._id);
     name_user.className = "name-user";
     name_user.textContent = name;
     contact_info.className = "contact-info";
@@ -354,8 +443,10 @@ function load_chats_list() {
     contact_image.appendChild(status);
     div_infos.appendChild(contact_image);
     div_infos.appendChild(contact_info);
+    container_time_notification.appendChild(time);
+    container_time_notification.appendChild(circle_notification);
     chat_li.appendChild(div_infos);
-    chat_li.appendChild(time);
+    chat_li.appendChild(container_time_notification);
     chat_li.classList.add("li-chat");
 
     chat_li.style.zIndex = z_index_chat_list;
@@ -433,7 +524,7 @@ function load_messages_chat(cached_messages, id) {
           time_message.className = "time-message";
 
           text_message.textContent = e.text;
-          time_message.textContent = formatted_time(e.time);
+          time_message.textContent = get_horas(e.time);
 
           self_message.appendChild(text_message);
           self_message.appendChild(time_message);
@@ -452,7 +543,7 @@ function load_messages_chat(cached_messages, id) {
           time_message.className = "time-message";
 
           text_message.textContent = e.text;
-          time_message.textContent = formatted_time(e.time);
+          time_message.textContent = get_horas(e.time);
 
           other_message.appendChild(text_message);
           other_message.appendChild(time_message);
@@ -687,6 +778,8 @@ function open_chat() {
   load_input_chat(id);
 
   chat_selected = id;
+
+  remove_bubble(id);
 }
 
 function open_chat_by_contact() {
@@ -838,8 +931,7 @@ function get_contacts_list(token) {
         const resposta_data = JSON.parse(resposta.data);
 
         contacts_list = [...resposta_data.contacts];
-
-        inner_contacts_list();
+        load_contacts_list();
       } else {
       }
     },
@@ -850,7 +942,7 @@ function get_contacts_list(token) {
   });
 }
 
-function inner_contacts_list() {
+function load_contacts_list() {
   // Limpa a lista.
   side_contacts.innerHTML = "";
 
@@ -1007,6 +1099,16 @@ function get_current_time() {
   return horas;
 }
 
+function get_horas(time) {
+  let data = new Date(time);
+  let horas = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return horas;
+}
+
 function formatted_time(time) {
   let newTime = new Date(time);
 
@@ -1074,9 +1176,13 @@ function search_for_chat() {
       const last_message = document.createElement("div");
       const time = document.createElement("div");
       const status = document.createElement("div");
+      const container_time_notification = document.createElement("div");
+      const circle_notification = document.createElement("div");
+
+      container_time_notification.className = "container_time_notification";
+      circle_notification.className = "circle_notification";
 
       time.className = "time-stamp";
-
       name_user.className = "name-user";
       name_user.textContent = name;
       contact_info.className = "contact-info";
@@ -1095,8 +1201,10 @@ function search_for_chat() {
       contact_image.appendChild(status);
       div_infos.appendChild(contact_image);
       div_infos.appendChild(contact_info);
+      container_time_notification.appendChild(circle_notification);
+      container_time_notification.appendChild(time);
       chat_li.appendChild(div_infos);
-      chat_li.appendChild(time);
+      chat_li.appendChild(container_time_notification);
       chat_li.classList.add("li-chat");
 
       if (e.lmessage != 0) {
@@ -1111,14 +1219,38 @@ function search_for_chat() {
     elementosHTML.forEach((element) =>
       container_search_chat.appendChild(element)
     );
-
-    // Se nenhum chat for encontrado:
-    // if (chats_filtered == 0) {
-
-    // }
   };
 
   displayChats(chats_filtered);
+}
+
+function notification_bubble(id) {
+  const bubble = document.getElementById(`ntf_${id}`);
+  const time = document.getElementById(`time_${id}`);
+
+  time.style.color = "#5765f2";
+  bubble.style.display = "block";
+
+  if (bubble.textContent) {
+    const text = bubble.textContent;
+    let number = parseInt(text);
+    number++;
+    bubble.textContent = `${number}`;
+
+    return;
+  }
+
+  bubble.textContent = "1";
+}
+
+function remove_bubble(id) {
+  const bubble = document.getElementById(`ntf_${id}`);
+  const time = document.getElementById(`time_${id}`);
+
+  time.style.color = "#818181";
+
+  bubble.style.display = "none";
+  bubble.innerHTML = "";
 }
 
 // ?=================================================================

@@ -191,7 +191,7 @@ li:hover {
 li > div {
   display: flex;
   align-items: center;
-  padding-left: 10px;
+  margin-left: 10px;
   padding-right: 10px;
   overflow: hidden;
   white-space: nowrap;
@@ -221,9 +221,7 @@ li > div {
 .time-stamp {
   font-size: 0.7rem;
   color: #818181;
-  margin-right: 10px;
   min-width: 25px;
-  width: fit-content;
   overflow: hidden;
 }
 
@@ -637,4 +635,25 @@ img {
 
 .left-side-menu {
   color: white;
+}
+
+.container_time_notification {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: start;
+  min-width: 31px;
+}
+
+.circle_notification {
+  width: 17px;
+  height: 15px;
+  background: #5765f2;
+  border-radius: 100%;
+  color: #212121;
+  font-size: 10px;
+  text-align: center;
+  padding-top: 2px;
+  margin-top: 5px;
+  display: none;
 }
