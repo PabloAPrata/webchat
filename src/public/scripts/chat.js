@@ -53,6 +53,7 @@ const new_contact_div = document.getElementById("new-contact-div");
 const new_contact_side_back = document.getElementById("new_contact_side_back");
 const search_button = document.getElementById("search_button");
 const input_new_contact = document.getElementById("input_new_contact");
+const disconnect_button = document.getElementById("disconnect-button");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -175,6 +176,10 @@ new_contact.addEventListener("click", function () {
 
 new_contact_side_back.addEventListener("click", function () {
   new_contact_div.style.transform = null;
+});
+
+disconnect_button.addEventListener("click", function () {
+  disconnect();
 });
 
 search_button.addEventListener("click", function () {
@@ -312,6 +317,8 @@ function put_status_contacts(users_on) {
       }
     });
   });
+
+  console.log(online_user_list);
 }
 
 function autentication(token) {
@@ -383,7 +390,6 @@ function receive_message(data) {
   const time = formatted_time(data.time);
   update_chat_on_list(data.chat_id, data.text, data.sender_name, "agora");
   put_chat_first(data.chat_id);
-  // save_message_on_storage(data);
 
   if (data.chat_id == chat_selected) {
     append_new_message(data);
@@ -724,6 +730,7 @@ function create_emoji_picker() {
   emoji_overlay.style.width = "100vw";
   emoji_overlay.style.backgroundColor = "transparent";
   emoji_overlay.style.bottom = "60px";
+  emoji_overlay.style.zIndex = "999";
   emoji_overlay.addEventListener("click", button_emoji_picker);
 
   // Cria o emoji_picker
@@ -1357,6 +1364,12 @@ function remove_bubble(id) {
 
   bubble.style.display = "none";
   bubble.innerHTML = "";
+}
+
+function disconnect() {
+  localStorage.removeItem("token");
+  token = null;
+  window.location.href = "/";
 }
 
 // ?=================================================================
