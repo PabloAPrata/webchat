@@ -61,7 +61,6 @@ const socket = io.connect();
 
 socket.on("connect", () => {
   const mySocketID = socket.id;
-  // console.log("Connected to socket: " + mySocketID);
 });
 
 socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
@@ -75,7 +74,7 @@ socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
 
 socket.on("unread messages", (event) => {
   setTimeout(() => {
-    alert(event.text);
+    // alert(event.text);
   }, 1000);
 });
 
@@ -86,6 +85,30 @@ socket.on("exit", (online_user_list_coming) => {
 
 socket.on("send_msg", (data) => {
   receive_message(data);
+  if (hiddenPage) {
+    notification_navigador(data);
+  }
+});
+
+socket.on("typing", (event) => {
+  // Verifica se o evento é para o chat qu está aberto
+  if (event.chat_id === chat_selected) {
+    // Executa a função no chat aberto
+    const header = document.getElementById("informations-header");
+    if (header) {
+      const typing = document.createElement("p");
+      typing.textContent = `${event.user.name} está digitando...`;
+      typing.classList.add("typing_ntf");
+      typing.setAttribute("id", "typing_ntf");
+
+      header.appendChild(typing);
+
+      setTimeout(() => {
+        document.getElementById("typing_ntf").remove();
+      }, 3000);
+    }
+  }
+  // Executa a função na lista de chats
 });
 
 //----------------------------------------------------------------
@@ -158,9 +181,49 @@ search_button.addEventListener("click", function () {
   add_contact_api();
 });
 
+input_new_contact.addEventListener("keydown", function (e) {
+  if (e.keyCode !== 13) return;
+
+  add_contact_api();
+});
+
+// Verifica se o navegador suporta o evento visibilitychange
+if (typeof document.hidden !== "undefined") {
+  // Adiciona um ouvinte de eventos para o evento visibilitychange
+  document.addEventListener("visibilitychange", function () {
+    // Verifica se a página está aberta
+    if (!document.hidden) {
+      // A página está aberta
+      hiddenPage = false;
+    } else {
+      // A página está fechada
+      hiddenPage = true;
+    }
+  });
+}
+
 input_new_contact.onkeydown = () => applyPhoneMask(event);
 
 //================================================================
+
+let canSendTyping = true;
+function send_typing() {
+  if (canSendTyping) {
+    // Estrutura do dado que será enviado
+    const data = {
+      user: account_info,
+      chat_id: chat_selected,
+    };
+
+    socket.emit("typing", data);
+
+    canSendTyping = false;
+
+    setTimeout(function () {
+      canSendTyping = true;
+    }, 3000);
+  }
+}
 
 function applyPhoneMask(event) {
   let tecla = event.key;
@@ -207,12 +270,12 @@ function add_contact_api() {
       number: number,
     },
     sucesso(resposta) {
-      console.log(resposta);
       if (resposta.code === 201 || resposta.code === 200) {
         const msg = JSON.parse(resposta.data).msg;
         alert(msg);
 
         get_contacts_list(token);
+
         input_new_contact.value = "";
         new_contact_div.style.transform = null;
       }
@@ -314,6 +377,7 @@ function receive_message(data) {
   if (!chat) {
     put_chat_on_cache(data);
     load_chats_list();
+    put_status_contacts(online_user_list);
   }
 
   const time = formatted_time(data.time);
@@ -325,10 +389,12 @@ function receive_message(data) {
     append_new_message(data);
   }
 
-  const isOpen = chat.classList.contains("chat-selected");
-  if (!isOpen) {
-    notification_bubble(data.chat_id);
-    sound_new_message.play();
+  if (chat.classList) {
+    const isOpen = chat.classList.contains("chat-selected");
+    if (!isOpen) {
+      notification_bubble(data.chat_id);
+      sound_new_message.play();
+    }
   }
 }
 
@@ -398,6 +464,7 @@ function get_name_user_by_number(number) {
 function load_chats_list() {
   ul_chat.innerHTML = "";
   z_index_chat_list = 0;
+  transform_chat_list = 0;
 
   chats_list.forEach(function (e) {
     let name = null;
@@ -481,6 +548,7 @@ function load_header_chat(id) {
   header.className = "conversation-header";
   img.setAttribute("src", "../image/user-3296.svg");
   information.className = "informations-header";
+  information.setAttribute("id", "informations-header");
   p.className = "name-contact-header";
 
   header.appendChild(img);
@@ -692,11 +760,13 @@ function show_emoji_picker() {
   emoji_overlay.style.display = "block";
 }
 
-function button_emoji_picker() {
+function button_emoji_picker(e) {
   const emoji_overlay = document.getElementById("emoji-overlay");
+  const emoji_picker = document.getElementsByTagName("emoji-picker");
 
-  // Verifica se existe
+  if (emoji_picker[0] === e.target) return;
   if (emoji_overlay) {
+    // Verifica se existe
     // Se existir
     // Se tiver escondido aparecerá
     if (emoji_overlay.style.display === "none") {
@@ -730,6 +800,9 @@ function load_input_chat(chat_id) {
   button_emoji.addEventListener("click", button_emoji_picker);
 
   input_text.addEventListener("keydown", function (e) {
+    // Função que envia notificação dizendo que alguém está digitando
+    send_typing();
+
     if (e.key === "Enter") {
       send_message(input_text.value, chat_id);
     }
@@ -856,6 +929,8 @@ function open_chat_by_contact() {
       close_side_contacts();
 
       chat_selected = newID;
+
+      put_status_contacts(online_user_list);
     });
   });
 }
@@ -930,8 +1005,11 @@ function get_contacts_list(token) {
       if (resposta.code === 200) {
         const resposta_data = JSON.parse(resposta.data);
 
+        contacts_list = [];
         contacts_list = [...resposta_data.contacts];
+
         load_contacts_list();
+        put_status_contacts(online_user_list);
       } else {
       }
     },
@@ -1062,6 +1140,8 @@ get_chat_list(token).then((resposta) => {
   chats_list = [...resposta_data.chatsList];
 
   load_chats_list();
+
+  put_status_contacts(online_user_list);
 });
 
 // !! FUNÇÕES DAS DATAS
@@ -1241,6 +1321,32 @@ function notification_bubble(id) {
   }
 
   bubble.textContent = "1";
+}
+
+let hiddenPage = false;
+function notification_navigador(data) {
+  if ("Notification" in window) {
+    Notification.requestPermission().then(function (result) {
+      if (result === "granted") {
+        let title = null;
+        let message = null;
+
+        if (data.sender_name) {
+          title = data.sender_name;
+        } else {
+          title = data.sender_number;
+        }
+
+        if (data.text) {
+          message = data.text;
+        }
+
+        let notification = new Notification(title, {
+          body: message,
+        });
+      }
+    });
+  }
 }
 
 function remove_bubble(id) {

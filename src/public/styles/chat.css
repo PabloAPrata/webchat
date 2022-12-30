@@ -234,13 +234,20 @@ img {
 
 .informations-header {
   display: flex;
-  align-items: center;
+  align-items: start;
+  justify-content: center;
   margin-left: 15px;
   height: 100%;
   width: 100%;
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  flex-direction: column;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.typing_ntf {
+  color: #818181;
+  font-size: 11px;
 }
 
 .informations-header p {
@@ -621,8 +628,8 @@ img {
 .status-contact {
   border: solid 2px #ffffff;
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 100%;
   bottom: 5px;
   right: 6px;
@@ -646,12 +653,12 @@ img {
 }
 
 .circle_notification {
-  width: 17px;
-  height: 15px;
+  width: 19px;
+  height: 17px;
   background: #5765f2;
   border-radius: 100%;
   color: #212121;
-  font-size: 10px;
+  font-size: 11px;
   text-align: center;
   padding-top: 2px;
   margin-top: 5px;

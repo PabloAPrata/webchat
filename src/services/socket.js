@@ -83,6 +83,10 @@ module.exports = () => {
       send_message_to(data);
     });
 
+    socket.on("typing", (data) => {
+      socket.broadcast.emit("typing", data);
+    });
+
     socket.on("disconnect", () => {
       online_users.forEach((elemento, indice) => {
         if (elemento.id === socket.id) {
