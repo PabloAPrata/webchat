@@ -46,7 +46,6 @@ body {
 .block-messages {
   background-color: rgb(33, 33, 33);
   width: 30vw;
-  min-width: 300px;
   height: 100vh;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   overflow-y: auto;
@@ -104,6 +103,32 @@ body {
   font-size: 20px;
 }
 
+/* ================================================================
+*/
+.container-search-new-group {
+  display: flex;
+  height: 49px;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-search-new-group input {
+  height: 70%;
+  background-color: transparent;
+  border: transparent;
+  border-bottom: 1px solid #818181;
+  outline: none;
+  width: 100%;
+  color: white;
+  padding-left: 0px;
+  padding-right: 10px;
+}
+
+.container-search-new-group input::placeholder {
+  color: #818181;
+}
+
+/* ====== */
 .chatlist-header {
   display: flex;
   align-items: center;
@@ -204,6 +229,26 @@ li > div {
   justify-content: start;
   margin-right: 10px;
   position: relative;
+}
+
+.new-group-image {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-right: 10px;
+  position: relative;
+}
+
+.new-group-image img {
+  border-radius: 7px;
+  height: 22px;
+  padding: 8px;
+}
+
+.new_group {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 .name-user {
@@ -444,7 +489,37 @@ img {
   z-index: 100;
 }
 
+.section-new-group {
+  position: fixed;
+  background-color: rgb(33, 33, 33);
+  width: 30vw;
+  min-width: 300px;
+  height: 100vh;
+  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* transition: transform 500ms ease-in-out 0s; */
+  transition: all 500ms ease-in-out 0s;
+  /* transform: translateX(-800px); */
+  z-index: 100;
+}
+
 #side-search-icon {
+  background-color: rgb(25, 25, 25);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 15px;
+  padding-right: 20px;
+  margin-left: 3%;
+  margin-right: 0;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 0px 0px 5px;
+  font-size: 19px;
+}
+
+#search-new-group {
   background-color: rgb(25, 25, 25);
   padding-top: 0;
   padding-bottom: 0;
@@ -503,6 +578,24 @@ img {
 }
 
 #side_arrow_back {
+  color: #d9dee0;
+  display: flex;
+  background-color: rgb(33, 33, 33);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 15px;
+  padding-right: 20px;
+  margin-left: 3%;
+  margin-right: 0;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 0px 0px 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#new_chat_arrow_back {
   color: #d9dee0;
   display: flex;
   background-color: rgb(33, 33, 33);
@@ -663,4 +756,56 @@ img {
   padding-top: 2px;
   margin-top: 5px;
   display: none;
+}
+
+.container_novo_grupo {
+  cursor: pointer;
+}
+
+.container_contact_to_new_group {
+  margin-right: 6%;
+  margin-left: 6%;
+  margin-top: 3%;
+  margin-bottom: 3%;
+}
+
+.container_contact_to_new_group img {
+  height: 1.3rem;
+}
+
+.container_contact_to_new_group ul {
+  list-style: none;
+  width: max-content;
+}
+
+.container_contact_to_new_group ul {
+  width: 364px;
+  height: max-content;
+  max-height: 150px;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 10px;
+  overflow: auto;
+}
+
+.container_contact_to_new_group li {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  height: auto;
+  vertical-align: top;
+  margin: 0 6px 6px 0px;
+}
+
+.container_contact_to_new_group li .material-icons {
+  color: white;
+  font-size: 16px;
+}
+
+.name_choosed_contact {
+  color: white;
+  font-size: 13px;
+  overflow: hidden;
 }

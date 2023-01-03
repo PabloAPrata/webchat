@@ -28,12 +28,16 @@ const ChatController = {
     try {
       let { name, members, group, muted, lmessage } = request.body;
 
+      let len_members = null;
+
       // Validações
       if (!members) {
         return response.status(422).json({ msg: "Informe os membros" });
       }
       if (!group) {
-        group = false;
+        len_members = members.length;
+
+        len_members > 2 ? (group = true) : (group = false);
       }
       if (!muted) {
         muted = false;

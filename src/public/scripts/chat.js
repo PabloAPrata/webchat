@@ -54,6 +54,7 @@ const new_contact_side_back = document.getElementById("new_contact_side_back");
 const search_button = document.getElementById("search_button");
 const input_new_contact = document.getElementById("input_new_contact");
 const disconnect_button = document.getElementById("disconnect-button");
+const new_group = document.getElementById("new_group");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -118,7 +119,6 @@ socket.on("typing", (event) => {
 // BOTÕES DA INTERFACE - INTERAÇÕES
 
 new_chat.addEventListener("click", (event) => {
-  // section_contacts.style.opacity = 1;
   setTimeout(() => {
     section_contacts.style.transform = "translateX(0px)";
   }, 100);
@@ -207,7 +207,7 @@ if (typeof document.hidden !== "undefined") {
   });
 }
 
-input_new_contact.onkeydown = () => applyPhoneMask(event);
+input_new_contact.onkeyup = () => applyPhoneMask(event);
 
 //================================================================
 
@@ -230,12 +230,13 @@ function send_typing() {
   }
 }
 
+function new_group_button(event) {}
+
 function applyPhoneMask(event) {
   let tecla = event.key;
   let telefone = event.target.value.replace(/\D+/g, "");
 
   if (/^[0-9]$/i.test(tecla)) {
-    telefone = telefone + tecla;
     let tamanho = telefone.length;
 
     if (tamanho >= 12) {
@@ -253,10 +254,6 @@ function applyPhoneMask(event) {
     }
 
     event.target.value = telefone;
-  }
-
-  if (!["Backspace", "Delete"].includes(tecla)) {
-    return false;
   }
 }
 

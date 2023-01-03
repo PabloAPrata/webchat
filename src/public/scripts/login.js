@@ -48,7 +48,6 @@ function applyPhoneMask(event) {
   let telefone = event.target.value.replace(/\D+/g, "");
 
   if (/^[0-9]$/i.test(tecla)) {
-    telefone = telefone + tecla;
     let tamanho = telefone.length;
 
     if (tamanho >= 12) {
@@ -67,10 +66,6 @@ function applyPhoneMask(event) {
 
     event.target.value = telefone;
   }
-
-  if (!["Backspace", "Delete"].includes(tecla)) {
-    return false;
-  }
 }
 
-number_input.onkeydown = () => applyPhoneMask(event);
+number_input.onkeyup = () => applyPhoneMask(event);
