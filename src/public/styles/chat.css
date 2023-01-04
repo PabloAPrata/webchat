@@ -50,6 +50,8 @@ body {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   overflow-y: auto;
   overflow-x: hidden;
+
+  min-width: 333px;
 }
 
 .chat-selected {
@@ -110,6 +112,7 @@ body {
   height: 49px;
   justify-content: center;
   align-items: center;
+  margin-bottom: 30px;
 }
 
 .container-search-new-group input {
@@ -487,6 +490,8 @@ img {
   transition: all 500ms ease-in-out 0s;
   transform: translateX(-800px);
   z-index: 100;
+
+  min-width: 333px;
 }
 
 .section-new-group {
@@ -500,8 +505,10 @@ img {
   overflow-x: hidden;
   /* transition: transform 500ms ease-in-out 0s; */
   transition: all 500ms ease-in-out 0s;
-  /* transform: translateX(-800px); */
+  transform: translateX(-800px);
   z-index: 100;
+
+  min-width: 333px;
 }
 
 #side-search-icon {
@@ -774,18 +781,12 @@ img {
 }
 
 .container_contact_to_new_group ul {
-  list-style: none;
-  width: max-content;
-}
-
-.container_contact_to_new_group ul {
-  width: 364px;
-  height: max-content;
   max-height: 150px;
-  display: grid;
-  grid-template-columns: auto auto;
+  display: flex;
   grid-gap: 10px;
   overflow: auto;
+  list-style: none;
+  flex-wrap: wrap;
 }
 
 .container_contact_to_new_group li {
@@ -808,4 +809,24 @@ img {
   color: white;
   font-size: 13px;
   overflow: hidden;
+}
+
+.container_button_create_group {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding-top: 24px;
+  padding-bottom: 40px;
+  position: absolute;
+  bottom: 0;
+}
+
+.container_button_create_group button {
+  border-radius: 100%;
+  padding: 10px;
+  background: #5765f2;
+  color: white;
+  cursor: pointer;
+  border: solid;
 }

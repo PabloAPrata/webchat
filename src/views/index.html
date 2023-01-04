@@ -130,21 +130,11 @@
           id="container_contact_to_new_group"
           class="container_contact_to_new_group"
         >
-          <ul>
-            <li>
-              <img src="../image/user-3296.svg" alt="" />
-              <div class="name_choosed_contact">Fulano de tal</div>
-              <span class="material-icons"> close </span>
-            </li>
-            <li>
-              <img src="../image/user-3296.svg" alt="" />
-              <div class="name_choosed_contact">Fulano de tal</div>
-              <span class="material-icons"> close </span>
-            </li>
-          </ul>
+          <ul id="new_group_selected"></ul>
         </div>
         <div class="container-search-new-group">
           <input
+            id="input_search_newG"
             title="Caixa de texto de pesquisa"
             type="text"
             placeholder="Digite o nome do contato"
@@ -152,7 +142,16 @@
           />
         </div>
 
-        <ul class="side-contacts"></ul>
+        <ul id="ul_new_group" class="side-contacts"></ul>
+
+        <div
+          id="container_button_create_group"
+          class="container_button_create_group"
+        >
+          <button id="button_create_group">
+            <span class="material-icons"> check </span>
+          </button>
+        </div>
       </section>
 
       <section id="new-contact-div" class="left-side-menu">

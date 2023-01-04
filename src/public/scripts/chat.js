@@ -54,7 +54,16 @@ const new_contact_side_back = document.getElementById("new_contact_side_back");
 const search_button = document.getElementById("search_button");
 const input_new_contact = document.getElementById("input_new_contact");
 const disconnect_button = document.getElementById("disconnect-button");
+const section_new_group = document.getElementById("section-new-group");
 const new_group = document.getElementById("new_group");
+const new_chat_arrow_back = document.getElementById("new_chat_arrow_back");
+const ul_new_group = document.getElementById("ul_new_group");
+const input_search_newG = document.getElementById("input_search_newG");
+const new_group_selected = document.getElementById("new_group_selected");
+const container_button_create_group = document.getElementById(
+  "container_button_create_group"
+);
+const button_create_group = document.getElementById("button_create_group");
 
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
@@ -178,6 +187,10 @@ new_contact_side_back.addEventListener("click", function () {
   new_contact_div.style.transform = null;
 });
 
+new_chat_arrow_back.addEventListener("click", function () {
+  section_new_group.style.transform = null;
+});
+
 disconnect_button.addEventListener("click", function () {
   disconnect();
 });
@@ -190,6 +203,60 @@ input_new_contact.addEventListener("keydown", function (e) {
   if (e.keyCode !== 13) return;
 
   add_contact_api();
+});
+
+new_group.addEventListener("click", function () {
+  section_new_group.style.transform = "translateX(0px)";
+  inner_contacts_new_group();
+});
+
+input_search_newG.addEventListener("keydown", function () {
+  search_contact_new_group();
+});
+
+button_create_group.addEventListener("click", function () {
+  // Pega os membros selecionados
+  let array_members = [];
+  let members = new_group_selected.childNodes;
+
+  members.forEach(function (element) {
+    const number = element.getAttribute("user_number");
+    array_members.push(number);
+  });
+
+  // Coloca o meu número
+  array_members.push(account_info.number);
+
+  createChatAPI(array_members).then((resultado) => {
+    // Guarda o id do chat criado:
+    const newID = JSON.parse(resultado.data).id;
+    console.log(resultado);
+    console.log(chats_list);
+    // Atualiza a lista de chats no cache:
+    get_chat_list(token).then((resposta) => {
+      const resposta_data = JSON.parse(resposta.data);
+      console.log(resposta_data);
+      chats_list = [...resposta_data.chatsList];
+
+      load_chats_list();
+
+      load_header_chat(newID);
+
+      load_messages_chat(cached_messages, newID);
+
+      load_input_chat(newID);
+
+      chat_selected_color(newID);
+
+      close_side_contacts();
+
+      chat_selected = newID;
+
+      put_status_contacts(online_user_list);
+
+      section_new_group.style.transform = null;
+    });
+  });
 });
 
 // Verifica se o navegador suporta o evento visibilitychange
@@ -229,8 +296,6 @@ function send_typing() {
     }, 3000);
   }
 }
-
-function new_group_button(event) {}
 
 function applyPhoneMask(event) {
   let tecla = event.key;
@@ -314,8 +379,6 @@ function put_status_contacts(users_on) {
       }
     });
   });
-
-  console.log(online_user_list);
 }
 
 function autentication(token) {
@@ -343,7 +406,7 @@ function autentication(token) {
   });
 }
 
-async function createChatAPI(arrayMembers) {
+async function createChatAPI(arrayMembers, name) {
   arrayMembers.sort();
 
   return new Promise((resolve, reject) => {
@@ -352,6 +415,7 @@ async function createChatAPI(arrayMembers) {
       metodo: "post",
       headers: [{ header: "Authorization", value: `Bearer ${token}` }],
       body: {
+        name,
         members: arrayMembers,
       },
       sucesso: resolve,
@@ -359,7 +423,6 @@ async function createChatAPI(arrayMembers) {
     });
   });
 }
-
 function put_chat_on_cache(data) {
   chats_list.push({
     group: false,
@@ -473,9 +536,18 @@ function load_chats_list() {
     let name = null;
     const other_members = remove_my_number(e.members);
 
-    if (other_members.length === 1) {
+    const size_other_members = other_members.length;
+
+    // Se não for um grupo, o nome que aparecerá será o nome do outro usuário
+    if (size_other_members === 1) {
       name = get_name_user_by_number(other_members[0]);
       e.name = name;
+    }
+
+    if (size_other_members > 1) {
+      other_members.forEach((e, i) => {
+        name = name === null ? "" : name + get_name_user_by_number(e) + ", ";
+      });
     }
 
     const chat_li = document.createElement("li");
@@ -1367,6 +1439,192 @@ function disconnect() {
   localStorage.removeItem("token");
   token = null;
   window.location.href = "/";
+}
+
+function inner_contacts_new_group() {
+  // Limpa a lista.
+  ul_new_group.innerHTML = "";
+
+  contacts_list.forEach((e) => {
+    const contacts_li = document.createElement("li");
+    const div_infos = document.createElement("div");
+    const contact_image = document.createElement("div");
+    const img = document.createElement("img");
+    const contact_info = document.createElement("div");
+    const name_user = document.createElement("div");
+
+    name_user.className = "name-user";
+    name_user.textContent = e.name;
+    contact_info.className = "contact-info";
+    img.setAttribute("src", "../image/user-3296.svg");
+    contact_image.className = "contact-image";
+    contacts_li.setAttribute("id", "newgroup__" + e._id);
+    contacts_li.onclick = add_contact_new_group;
+    contacts_li.setAttribute("user_name", e.name);
+    contacts_li.setAttribute("user_number", e.number);
+
+    contact_info.appendChild(name_user);
+    contact_image.appendChild(img);
+    div_infos.appendChild(contact_image);
+    div_infos.appendChild(contact_info);
+    contacts_li.appendChild(div_infos);
+    contacts_li.classList.add("li-contacts");
+
+    ul_new_group.appendChild(contacts_li);
+  });
+}
+
+function search_contact_new_group() {
+  const string = input_search_newG.value.toLowerCase();
+
+  // Filtra os chats de acordo com os caracteres digitados no input
+  const contacts_filtered = contacts_list.filter((element) => {
+    return element.name.toLowerCase().includes(string);
+  });
+
+  // Trata os chats encontrados para mostrar na tela
+  const displayChats = (contacts) => {
+    ul_new_group.innerHTML = "";
+    const elementosHTML = contacts.map((e) => {
+      const contacts_li = document.createElement("li");
+      const div_infos = document.createElement("div");
+      const contact_image = document.createElement("div");
+      const img = document.createElement("img");
+      const contact_info = document.createElement("div");
+      const name_user = document.createElement("div");
+
+      name_user.className = "name-user";
+      name_user.textContent = e.name;
+      contact_info.className = "contact-info";
+      img.setAttribute("src", "../image/user-3296.svg");
+      contact_image.className = "contact-image";
+      contacts_li.setAttribute("id", "newgroup__" + e._id);
+      contacts_li.onclick = add_contact_new_group;
+      contacts_li.setAttribute("user_name", e.name);
+      contacts_li.setAttribute("user_number", e.number);
+
+      contact_info.appendChild(name_user);
+      contact_image.appendChild(img);
+      div_infos.appendChild(contact_image);
+      div_infos.appendChild(contact_info);
+      contacts_li.appendChild(div_infos);
+      contacts_li.classList.add("li-contacts");
+
+      side_contacts.appendChild(contacts_li);
+
+      return contacts_li;
+    });
+
+    elementosHTML.forEach((element) => ul_new_group.appendChild(element));
+  };
+
+  displayChats(contacts_filtered);
+}
+
+function add_contact_new_group() {
+  const id = this.id;
+
+  const div_contact = document.getElementById(id);
+
+  // Informações de contato
+  const name = div_contact.getAttribute("user_name");
+  const number = div_contact.getAttribute("user_number");
+
+  // Formar a div
+  const li = document.createElement("li");
+  const img = document.createElement("img");
+  const div = document.createElement("div");
+  const span = document.createElement("span");
+
+  li.setAttribute("user_name", name);
+  li.setAttribute("user_number", number);
+  li.setAttribute("id", id);
+  img.setAttribute("src", "../image/user-3296.svg");
+  div.className = "name_choosed_contact";
+  span.className = "material-icons";
+  span.textContent = "close";
+  span.onclick = remove_contact_new_group;
+  div.textContent = name;
+
+  li.appendChild(img);
+  li.appendChild(div);
+  li.appendChild(span);
+
+  new_group_selected.appendChild(li);
+
+  div_contact.remove();
+
+  input_search_newG.value = "";
+
+  remove_contact_from_contacts_li(number);
+
+  if (new_group_selected.children.length > 0) {
+    container_button_create_group.style.display = "flex";
+  } else {
+    container_button_create_group.style.display = "none";
+  }
+}
+
+function remove_contact_new_group() {
+  const div = this.parentNode;
+
+  const name = div.getAttribute("user_name");
+  const number = div.getAttribute("user_number");
+  const id = div.getAttribute("id");
+
+  const contacts_li = document.createElement("li");
+  const div_infos = document.createElement("div");
+  const contact_image = document.createElement("div");
+  const img = document.createElement("img");
+  const contact_info = document.createElement("div");
+  const name_user = document.createElement("div");
+
+  name_user.className = "name-user";
+  name_user.textContent = name;
+  contact_info.className = "contact-info";
+  img.setAttribute("src", "../image/user-3296.svg");
+  contact_image.className = "contact-image";
+  contacts_li.setAttribute("id", id);
+  contacts_li.onclick = add_contact_new_group;
+  contacts_li.setAttribute("user_name", name);
+  contacts_li.setAttribute("user_number", number);
+
+  contact_info.appendChild(name_user);
+  contact_image.appendChild(img);
+  div_infos.appendChild(contact_image);
+  div_infos.appendChild(contact_info);
+  contacts_li.appendChild(div_infos);
+  contacts_li.classList.add("li-contacts");
+
+  side_contacts.appendChild(contacts_li);
+
+  ul_new_group.appendChild(contacts_li);
+
+  div.remove();
+
+  if (new_group_selected.children.length > 0) {
+    container_button_create_group.style.display = "flex";
+  } else {
+    container_button_create_group.style.display = "none";
+  }
+
+  add_contact_from_contacts_li(name, number, id);
+}
+
+function remove_contact_from_contacts_li(number) {
+  contacts_list.forEach((contact, i) => {
+    if (contact.number === number) {
+      contacts_list.splice(i, 1);
+    }
+  });
+}
+
+function add_contact_from_contacts_li(name, number, id) {
+  contacts_list.push({
+    name: name,
+    number: number,
+    _id: id,
+  });
 }
 
 // ?=================================================================
