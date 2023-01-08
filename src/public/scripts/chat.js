@@ -46,6 +46,7 @@ const overlay_menu_option = document.getElementById("overlay_menu_option");
 const filter_list = document.getElementById("filter_list");
 const side_contacts = document.getElementById("side-contacts");
 const input_search_chat = document.getElementById("input_search_chat");
+const input_search_contacts = document.getElementById("input_search_contacts");
 const container_search_chat = document.getElementById("container_search_chat");
 const clear_search_chat_button = document.getElementById("clear_search_chat");
 const new_contact = document.getElementById("new-contact");
@@ -64,7 +65,7 @@ const container_button_create_group = document.getElementById(
   "container_button_create_group"
 );
 const button_create_group = document.getElementById("button_create_group");
-
+const new_group_button = document.getElementById("new-group-button");
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
 
@@ -165,7 +166,7 @@ filter_list.addEventListener("click", (event) => {
   }
 });
 
-input_search_chat.addEventListener("keypress", function () {
+input_search_chat.addEventListener("keyup", function () {
   search_for_chat();
 });
 
@@ -173,6 +174,11 @@ input_search_chat.addEventListener("focus", function () {
   container_search_chat.style.display = "block";
   clear_search_chat_button.style.display = "block";
   filter_list.style.display = "none";
+  search_for_chat();
+});
+
+input_search_contacts.addEventListener("keyup", function (e) {
+  search_for_contacts();
 });
 
 clear_search_chat_button.addEventListener("click", function () {
@@ -207,10 +213,17 @@ input_new_contact.addEventListener("keydown", function (e) {
 
 new_group.addEventListener("click", function () {
   section_new_group.style.transform = "translateX(0px)";
+  input_search_newG.value = "";
   inner_contacts_new_group();
 });
 
-input_search_newG.addEventListener("keydown", function () {
+new_group_button.addEventListener("click", function () {
+  section_new_group.style.transform = "translateX(0px)";
+  input_search_newG.value = "";
+  inner_contacts_new_group();
+});
+
+input_search_newG.addEventListener("keyup", function () {
   search_contact_new_group();
 });
 
@@ -230,8 +243,7 @@ button_create_group.addEventListener("click", function () {
   createChatAPI(array_members).then((resultado) => {
     // Guarda o id do chat criado:
     const newID = JSON.parse(resultado.data).id;
-    console.log(resultado);
-    console.log(chats_list);
+
     // Atualiza a lista de chats no cache:
     get_chat_list(token).then((resposta) => {
       const resposta_data = JSON.parse(resposta.data);
@@ -532,6 +544,8 @@ function load_chats_list() {
   z_index_chat_list = 0;
   transform_chat_list = 0;
 
+  console.log("Lista de chats: ", chats_list);
+
   chats_list.forEach(function (e) {
     let name = null;
     const other_members = remove_my_number(e.members);
@@ -539,15 +553,21 @@ function load_chats_list() {
     const size_other_members = other_members.length;
 
     // Se não for um grupo, o nome que aparecerá será o nome do outro usuário
-    if (size_other_members === 1) {
-      name = get_name_user_by_number(other_members[0]);
-      e.name = name;
-    }
+    if (!e.name) {
+      if (size_other_members === 1) {
+        name = get_name_user_by_number(other_members[0]);
+        e.name = name;
+      }
 
-    if (size_other_members > 1) {
-      other_members.forEach((e, i) => {
-        name = name === null ? "" : name + get_name_user_by_number(e) + ", ";
-      });
+      if (size_other_members > 1) {
+        other_members.forEach((e, i) => {
+          name = name === null ? "" : name;
+          name = name + get_name_user_by_number(e) + ", ";
+        });
+        e.name = name;
+      }
+    } else {
+      name = e.name;
     }
 
     const chat_li = document.createElement("li");
@@ -1099,7 +1119,7 @@ function get_contacts_list(token) {
 function load_contacts_list() {
   // Limpa a lista.
   side_contacts.innerHTML = "";
-
+  console.log("Lista de contatos: ", contacts_list);
   contacts_list.forEach((e) => {
     const contacts_li = document.createElement("li");
     const div_infos = document.createElement("div");
@@ -1303,6 +1323,7 @@ function formatted_time(time) {
 }
 
 function search_for_chat() {
+  container_search_chat.innerHTML = "";
   const string = input_search_chat.value.toLowerCase();
 
   // Filtra os chats de acordo com os caracteres digitados no input
@@ -1314,13 +1335,26 @@ function search_for_chat() {
   const displayChats = (contacts) => {
     const elementosHTML = contacts.map((e) => {
       let name = null;
-
-      container_search_chat.innerHTML = "";
-
       const other_members = remove_my_number(e.members);
-      if (other_members.length === 1) {
-        name = get_name_user_by_number(other_members[0]);
-        e.name = name;
+
+      const size_other_members = other_members.length;
+
+      // Se não for um grupo, o nome que aparecerá será o nome do outro usuário
+      if (!e.name) {
+        if (size_other_members === 1) {
+          name = get_name_user_by_number(other_members[0]);
+          e.name = name;
+        }
+
+        if (size_other_members > 1) {
+          other_members.forEach((e, i) => {
+            name = name === null ? "" : name;
+            name = name + get_name_user_by_number(e) + ", ";
+          });
+          e.name = name;
+        }
+      } else {
+        name = e.name;
       }
 
       const chat_li = document.createElement("li");
@@ -1337,8 +1371,9 @@ function search_for_chat() {
 
       container_time_notification.className = "container_time_notification";
       circle_notification.className = "circle_notification";
-
+      circle_notification.setAttribute("id", "ntf_" + e._id);
       time.className = "time-stamp";
+      time.setAttribute("id", "time_" + e._id);
       name_user.className = "name-user";
       name_user.textContent = name;
       contact_info.className = "contact-info";
@@ -1357,8 +1392,8 @@ function search_for_chat() {
       contact_image.appendChild(status);
       div_infos.appendChild(contact_image);
       div_infos.appendChild(contact_info);
-      container_time_notification.appendChild(circle_notification);
       container_time_notification.appendChild(time);
+      container_time_notification.appendChild(circle_notification);
       chat_li.appendChild(div_infos);
       chat_li.appendChild(container_time_notification);
       chat_li.classList.add("li-chat");
@@ -1378,6 +1413,53 @@ function search_for_chat() {
   };
 
   displayChats(chats_filtered);
+}
+
+function search_for_contacts() {
+  side_contacts.innerHTML = "";
+  const string = input_search_contacts.value.toLowerCase();
+
+  // Filtra os contatos de acordo com os caracteres digitados no input
+  const contacts_filtered = contacts_list.filter((element) => {
+    return element.name.toLowerCase().includes(string);
+  });
+
+  // Trata os chats encontrados para mostrar na tela
+  const displayChats = (contacts) => {
+    const elementosHTML = contacts.map((e) => {
+      const contacts_li = document.createElement("li");
+      const div_infos = document.createElement("div");
+      const contact_image = document.createElement("div");
+      const img = document.createElement("img");
+      const contact_info = document.createElement("div");
+      const name_user = document.createElement("div");
+
+      name_user.className = "name-user";
+      name_user.textContent = e.name;
+      contact_info.className = "contact-info";
+      img.setAttribute("src", "../image/user-3296.svg");
+      contact_image.className = "contact-image";
+      contacts_li.setAttribute("id", "newgroup__" + e._id);
+      contacts_li.onclick = open_chat_by_contact;
+      contacts_li.setAttribute("user_name", e.name);
+      contacts_li.setAttribute("user_number", e.number);
+
+      contact_info.appendChild(name_user);
+      contact_image.appendChild(img);
+      div_infos.appendChild(contact_image);
+      div_infos.appendChild(contact_info);
+      contacts_li.appendChild(div_infos);
+      contacts_li.classList.add("li-contacts");
+
+      side_contacts.appendChild(contacts_li);
+
+      return contacts_li;
+    });
+
+    elementosHTML.forEach((element) => side_contacts.appendChild(element));
+  };
+
+  displayChats(contacts_filtered);
 }
 
 function notification_bubble(id) {
@@ -1475,16 +1557,16 @@ function inner_contacts_new_group() {
 }
 
 function search_contact_new_group() {
+  ul_new_group.innerHTML = "";
   const string = input_search_newG.value.toLowerCase();
 
   // Filtra os chats de acordo com os caracteres digitados no input
   const contacts_filtered = contacts_list.filter((element) => {
     return element.name.toLowerCase().includes(string);
   });
-
+  console.log(contacts_filtered);
   // Trata os chats encontrados para mostrar na tela
   const displayChats = (contacts) => {
-    ul_new_group.innerHTML = "";
     const elementosHTML = contacts.map((e) => {
       const contacts_li = document.createElement("li");
       const div_infos = document.createElement("div");

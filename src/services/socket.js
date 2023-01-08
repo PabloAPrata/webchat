@@ -9,7 +9,6 @@ module.exports = () => {
 
   io.on("connection", (socket) => {
     // FUNÇÕES PARA WEBSOCKET
-
     function check_event_losted(user) {
       for (let i = 0; i < events_losted.length; i++) {
         if (user === events_losted[i].members) {
@@ -17,7 +16,6 @@ module.exports = () => {
             "unread messages",
             events_losted[i]
           );
-
           events_losted.splice(i, 1);
         }
       }
