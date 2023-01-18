@@ -10,6 +10,7 @@ let transform_chat_list = 0;
 let online_user_list = [];
 let contacts_list = [];
 let chats_list = [];
+let contact_list_copy = [];
 
 let socket_id = null;
 let chat_selected = null;
@@ -61,11 +62,23 @@ const new_chat_arrow_back = document.getElementById("new_chat_arrow_back");
 const ul_new_group = document.getElementById("ul_new_group");
 const input_search_newG = document.getElementById("input_search_newG");
 const new_group_selected = document.getElementById("new_group_selected");
-const container_button_create_group = document.getElementById(
-  "container_button_create_group"
+const container_button_users_selected = document.getElementById(
+  "container_button_users_selected"
+);
+const button_users_selected = document.getElementById("button_users_selected");
+const new_group_button = document.getElementById("new-group-button");
+const group_name_input = document.getElementById("group_name_input");
+const name_group_caractere_counter = document.getElementById(
+  "name-group-caractere-counter"
+);
+const group_name_arrow_back = document.getElementById("group_name_arrow_back");
+const section_new_group_name = document.getElementById(
+  "section-new-group-name"
+);
+const container_button_name_group = document.getElementById(
+  "container_button_name_group"
 );
 const button_create_group = document.getElementById("button_create_group");
-const new_group_button = document.getElementById("new-group-button");
 // ----------------------------------------------------------------
 // FUNÇÕES DO SOCKET
 
@@ -227,11 +240,42 @@ input_search_newG.addEventListener("keyup", function () {
   search_contact_new_group();
 });
 
+var create_chat_options = {
+  name: "",
+  members: [],
+};
+
+button_users_selected.addEventListener("click", function () {
+  // ? --------------------------------
+
+  section_new_group_name.style.transform = "translateX(0)";
+
+  // ? --------------------------------
+});
+
+group_name_input.addEventListener("keyup", () => {
+  const characterCount = group_name_input.value.length;
+
+  name_group_caractere_counter.textContent = 25 - characterCount;
+
+  if (characterCount > 0) {
+    container_button_name_group.style.display = "flex";
+  } else {
+    container_button_name_group.style.display = "none";
+  }
+});
+
 button_create_group.addEventListener("click", function () {
+  const name = group_name_input.value;
+
+  if (name.length > 25) {
+    alert("Por favor, insira um número com no máximo 25 caracteres.");
+    return;
+  }
+
   // Pega os membros selecionados
   let array_members = [];
   let members = new_group_selected.childNodes;
-
   members.forEach(function (element) {
     const number = element.getAttribute("user_number");
     array_members.push(number);
@@ -240,14 +284,14 @@ button_create_group.addEventListener("click", function () {
   // Coloca o meu número
   array_members.push(account_info.number);
 
-  createChatAPI(array_members).then((resultado) => {
+  createChatAPI(array_members, name).then((resultado) => {
     // Guarda o id do chat criado:
     const newID = JSON.parse(resultado.data).id;
 
     // Atualiza a lista de chats no cache:
     get_chat_list(token).then((resposta) => {
       const resposta_data = JSON.parse(resposta.data);
-      console.log(resposta_data);
+
       chats_list = [...resposta_data.chatsList];
 
       load_chats_list();
@@ -265,6 +309,8 @@ button_create_group.addEventListener("click", function () {
       chat_selected = newID;
 
       put_status_contacts(online_user_list);
+
+      new_group_selected.innerHTML = "";
 
       section_new_group.style.transform = null;
     });
@@ -285,6 +331,10 @@ if (typeof document.hidden !== "undefined") {
     }
   });
 }
+
+group_name_arrow_back.addEventListener("click", function () {
+  section_new_group_name.style.transform = null;
+});
 
 input_new_contact.onkeyup = () => applyPhoneMask(event);
 
@@ -528,6 +578,7 @@ function remove_my_number(array_members) {
 function get_name_user_by_number(number) {
   let size = contacts_list.length;
   let name = null;
+
   for (let i = 0; i < size; i++) {
     if (contacts_list[i].number === number) {
       name = contacts_list[i].name;
@@ -544,7 +595,7 @@ function load_chats_list() {
   z_index_chat_list = 0;
   transform_chat_list = 0;
 
-  console.log("Lista de chats: ", chats_list);
+  // console.log("Lista de chats: ", chats_list);
 
   chats_list.forEach(function (e) {
     let name = null;
@@ -1119,7 +1170,7 @@ function get_contacts_list(token) {
 function load_contacts_list() {
   // Limpa a lista.
   side_contacts.innerHTML = "";
-  console.log("Lista de contatos: ", contacts_list);
+  // console.log("Lista de contatos: ", contacts_list);
   contacts_list.forEach((e) => {
     const contacts_li = document.createElement("li");
     const div_infos = document.createElement("div");
@@ -1560,11 +1611,12 @@ function search_contact_new_group() {
   ul_new_group.innerHTML = "";
   const string = input_search_newG.value.toLowerCase();
 
+  contact_list_copy = [...contacts_list];
   // Filtra os chats de acordo com os caracteres digitados no input
-  const contacts_filtered = contacts_list.filter((element) => {
+  const contacts_filtered = contact_list_copy.filter((element) => {
     return element.name.toLowerCase().includes(string);
   });
-  console.log(contacts_filtered);
+
   // Trata os chats encontrados para mostrar na tela
   const displayChats = (contacts) => {
     const elementosHTML = contacts.map((e) => {
@@ -1638,12 +1690,12 @@ function add_contact_new_group() {
 
   input_search_newG.value = "";
 
-  remove_contact_from_contacts_li(number);
+  remove_contact_from_contacts_li_copy(number);
 
   if (new_group_selected.children.length > 0) {
-    container_button_create_group.style.display = "flex";
+    container_button_users_selected.style.display = "flex";
   } else {
-    container_button_create_group.style.display = "none";
+    container_button_users_selected.style.display = "none";
   }
 }
 
@@ -1685,24 +1737,24 @@ function remove_contact_new_group() {
   div.remove();
 
   if (new_group_selected.children.length > 0) {
-    container_button_create_group.style.display = "flex";
+    container_button_users_selected.style.display = "flex";
   } else {
-    container_button_create_group.style.display = "none";
+    container_button_users_selected.style.display = "none";
   }
 
   add_contact_from_contacts_li(name, number, id);
 }
 
-function remove_contact_from_contacts_li(number) {
-  contacts_list.forEach((contact, i) => {
+function remove_contact_from_contacts_li_copy(number) {
+  contact_list_copy.forEach((contact, i) => {
     if (contact.number === number) {
-      contacts_list.splice(i, 1);
+      contact_list_copy.splice(i, 1);
     }
   });
 }
 
 function add_contact_from_contacts_li(name, number, id) {
-  contacts_list.push({
+  contact_list_copy.push({
     name: name,
     number: number,
     _id: id,

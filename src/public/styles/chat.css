@@ -511,6 +511,22 @@ img {
   min-width: 333px;
 }
 
+.section-new-group-name {
+  position: fixed;
+  background-color: rgb(33, 33, 33);
+  width: 30vw;
+  min-width: 333px;
+  height: 100vh;
+  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all 500ms ease-in-out 0s;
+  transform: translateX(-800px);
+  z-index: 100;
+
+  min-width: 333px;
+}
+
 #side-search-icon {
   background-color: rgb(25, 25, 25);
   padding-top: 0;
@@ -568,10 +584,6 @@ img {
   user-select: none;
 }
 
-#new-contact {
-  font-size: 23px;
-}
-
 .contactslist-header {
   display: flex;
   align-items: end;
@@ -585,6 +597,24 @@ img {
 }
 
 #side_arrow_back {
+  color: #d9dee0;
+  display: flex;
+  background-color: rgb(33, 33, 33);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 15px;
+  padding-right: 20px;
+  margin-left: 3%;
+  margin-right: 0;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 0px 0px 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#group_name_arrow_back {
   color: #d9dee0;
   display: flex;
   background-color: rgb(33, 33, 33);
@@ -811,7 +841,7 @@ img {
   overflow: hidden;
 }
 
-.container_button_create_group {
+.container_button_users_selected {
   display: none;
   width: 100%;
   align-items: center;
@@ -822,11 +852,43 @@ img {
   bottom: 0;
 }
 
-.container_button_create_group button {
+.container_button_users_selected button {
   border-radius: 100%;
   padding: 10px;
   background: #5765f2;
   color: white;
   cursor: pointer;
   border: solid;
+}
+
+.container-group-img {
+  margin: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-group-img img {
+  height: 150px;
+  width: 150px;
+}
+
+#group_name_input {
+  border: none;
+}
+
+#name-group-caractere-counter {
+  color: #818181;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.container-search-new-group button {
+  color: #818181;
+  background: transparent;
+  margin-left: 5px;
+  margin-right: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 21px;
 }

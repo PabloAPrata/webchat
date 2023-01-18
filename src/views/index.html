@@ -24,13 +24,6 @@
             </p>
           </div>
           <span
-            id="new-contact"
-            title="Adicionar um novo contato."
-            class="material-icons"
-          >
-            person_add
-          </span>
-          <span
             id="new-chat"
             class="material-icons"
             title="Nova conversa"
@@ -45,6 +38,7 @@
           </div>
           <div id="overlay_menu_option" class="overlay_menu_options">
             <ul id="menu_option" class="menu_option">
+              <li id="new-contact">Adicionar contato</li>
               <li id="new-group-button">Novo grupo</li>
               <li id="disconnect-button">Desconectar</li>
             </ul>
@@ -145,8 +139,49 @@
         <ul id="ul_new_group" class="side-contacts"></ul>
 
         <div
-          id="container_button_create_group"
-          class="container_button_create_group"
+          id="container_button_users_selected"
+          class="container_button_users_selected"
+        >
+          <button id="button_users_selected">
+            <span class="material-icons"> check </span>
+          </button>
+        </div>
+      </section>
+
+      <section id="section-new-group-name" class="section-new-group-name">
+        <header class="contactslist-header">
+          <div class="container-side-title">
+            <span id="group_name_arrow_back" class="material-icons">
+              arrow_back
+            </span>
+            <h1 style="font-weight: 400">Novo grupo</h1>
+          </div>
+        </header>
+
+        <div class="container-group-img">
+          <img src="../image/user-3296.svg" alt="" />
+        </div>
+
+        <div
+          class="container-search-new-group"
+          style="
+            border-bottom: 1px solid #818181;
+            margin-left: 6%;
+            margin-right: 6%;
+          "
+        >
+          <input
+            id="group_name_input"
+            type="text"
+            placeholder="Nome do grupo"
+          />
+          <span id="name-group-caractere-counter">25</span>
+          <button class="material-icons">sentiment_satisfied_alt</button>
+        </div>
+
+        <div
+          id="container_button_name_group"
+          class="container_button_users_selected"
         >
           <button id="button_create_group">
             <span class="material-icons"> check </span>
