@@ -281,6 +281,7 @@ const ChatController = {
       }
 
       return response.status(200).json({ contacts: contacts });
+
       // const contactsList = await User.find({ members: { $all: [number] } });
     } catch (err) {
       console.log(err);

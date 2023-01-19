@@ -13,6 +13,20 @@ body {
   width: 100%;
 }
 
+/* Variáveis */
+
+.dark-mode:root {
+  --dark-mode-bg-color: rgb(40, 40, 40);
+  --dark-mode-bg-input: rgb(25, 25, 25);
+  --dark-mode-placeholder: #818181;
+  --dark-mode-icons: rgb(139, 139, 139);
+  --dark-mode-icon-selected: rgb(88, 101, 242);
+  --dark-mode-chat-selected: rgb(60 60 60);
+  --dark-mode-chat-hover: rgb(39, 39, 39);
+  --dark-mode-self-msg: #5865f2;
+  --dark-mode-text: white;
+}
+
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 * {
@@ -44,22 +58,21 @@ body {
 }
 
 .block-messages {
-  background-color: rgb(33, 33, 33);
+  background-color: rgb(234, 234, 234);
   width: 30vw;
   height: 100vh;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
   overflow-y: auto;
   overflow-x: hidden;
-
   min-width: 333px;
 }
 
 .chat-selected {
-  background-color: rgb(60 60 60) !important;
+  background-color: #ffffff !important;
 }
 
 #search-icon {
-  background-color: rgb(25, 25, 25);
+  background-color: rgb(222, 222, 222);
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -82,11 +95,11 @@ body {
 
 .container-search-chat input {
   height: 70%;
-  background-color: rgb(25, 25, 25);
+  background-color: rgb(222, 222, 222);
   border: none;
   outline: none;
   width: 100%;
-  color: white;
+  color: rgb(0, 0, 0);
   padding-left: 0px;
   padding-right: 10px;
   border-radius: 0px 5px 5px 0px;
@@ -119,10 +132,10 @@ body {
   height: 70%;
   background-color: transparent;
   border: transparent;
-  border-bottom: 1px solid #818181;
+  border-bottom: 1px solid #878787;
   outline: none;
   width: 100%;
-  color: white;
+  color: rgb(0, 0, 0);
   padding-left: 0px;
   padding-right: 10px;
 }
@@ -136,12 +149,12 @@ body {
   display: flex;
   align-items: center;
   height: 55px;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
+  border-bottom: 0.5px solid rgb(255 255 255);
   justify-content: space-between;
-  background-color: rgb(33, 33, 33);
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  background-color: #eaeaea;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .chatlist-header img {
@@ -161,14 +174,14 @@ body {
   overflow-y: auto;
   display: none;
   position: absolute;
-  background: #212121;
+  background: #eaeaea;
   z-index: 99;
 }
 
 .container_search_chat li {
   width: 100%;
   height: 70px;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
+  border-bottom: 0.5px solid rgb(255, 255, 255);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
@@ -187,14 +200,14 @@ body {
 .container-list li {
   width: 100%;
   height: 70px;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
+  border-bottom: 0.5px solid rgb(245 245 245);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  background-color: rgb(33, 33, 33);
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  background-color: rgb(234 234 234);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   position: absolute;
   transition: 200ms ease-in-out 0s;
 }
@@ -202,18 +215,18 @@ body {
 .side-contacts li {
   width: 100%;
   height: 70px;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
+  border-bottom: 0.5px solid rgb(255, 255, 255);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  background-color: rgb(33, 33, 33);
+  background-color: rgb(234, 234, 234);
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 }
 
 li:hover {
-  background-color: rgb(39, 39, 39);
+  background-color: rgb(244, 244, 244);
 }
 
 li > div {
@@ -255,14 +268,12 @@ li > div {
 }
 
 .name-user {
-  font-weight: 600;
   font-size: 0.9rem;
-  color: white;
 }
 
 .last-message {
   font-size: 0.8rem;
-  color: rgb(220, 220, 220);
+  color: rgb(105, 105, 105);
   max-width: 290px;
 }
 
@@ -278,6 +289,7 @@ img {
   background-color: white;
   border-radius: 100%;
   border: solid 2px white;
+  box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
 }
 
 .informations-header {
@@ -305,7 +317,7 @@ img {
 .conversation {
   width: 70%;
   height: 100vh;
-  background-color: rgb(40, 40, 40);
+  background-color: rgb(255, 255, 255);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -314,28 +326,29 @@ img {
 
 .conversation h1 {
   margin-top: 30px;
-  color: white;
+  color: #424242;
   font-weight: 400;
 }
 
 .text-start {
   margin-top: 10px;
-  color: rgb(223, 223, 223);
+  color: rgb(128 128 128);
   font-size: 0.9rem;
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .conversation-header {
   height: 55px;
   min-height: 55px;
   width: 100%;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
-  background-color: rgb(33, 33, 33);
+  border-bottom: 0.5px solid rgb(255 255 255);
+  background-color: rgb(245 245 245);
   display: flex;
   align-items: center;
   z-index: 5;
+  box-shadow: rgb(0 0 0 / 16%) 0px 1px 4px;
 }
 
 .conversation-header img {
@@ -344,12 +357,12 @@ img {
 
 .name-contact-header {
   font-size: 16px;
-  color: white;
+  color: black;
   margin-top: 0;
 }
 
 .your-name-header {
-  color: white;
+  color: black;
   margin-left: 15px;
 }
 
@@ -362,7 +375,7 @@ img {
 }
 
 .chatlist-header .material-icons {
-  color: white;
+  color: black;
   padding: 10px;
   cursor: pointer;
   margin-right: 10px;
@@ -371,7 +384,8 @@ img {
 .conversation-panel-messages {
   height: calc(100% - 135px);
   width: 100%;
-  background-color: #181919;
+  /* background-color: #ffffff; */
+  background: url("../image/backgroundChat2.jpeg");
   background-position: left top;
   background-size: auto;
   background-repeat: repeat;
@@ -385,7 +399,7 @@ img {
 .conversation-input-area {
   height: 60px;
   width: 100%;
-  background-color: rgb(33, 33, 33);
+  background-color: rgb(245 245 245);
   display: flex;
   align-items: center;
   -webkit-user-select: none; /* Safari */
@@ -396,13 +410,13 @@ img {
 .conversation-input {
   width: 100%;
   height: 30px;
-  background-color: rgb(25 25 25);
+  background-color: rgb(255, 255, 255);
   margin-right: 5px;
   border-radius: 10px;
   border: none;
   outline: none;
   padding: 2px 15px;
-  color: white;
+  color: black;
   font-size: 14px;
 }
 
@@ -437,29 +451,46 @@ img {
 }
 
 .self-message {
-  background-color: #5865f2;
+  background-color: rgb(73, 127, 251);
   border-radius: 10px 10px 0px 10px;
 }
 
 .message-baloon {
-  color: white;
+  color: black;
   width: fit-content;
   padding: 6px 7px 8px 9px;
   margin-top: 6px;
   font-size: 0.84rem;
   position: relative;
   text-align: justify;
+  box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px;
 }
 
-.text-message {
+.they-message .text-message {
   margin-right: 35px;
   font-size: 14px;
+  color: black;
 }
 
-.time-message {
+.self-message .text-message {
+  margin-right: 35px;
+  font-size: 14px;
+  color: white;
+}
+
+.self-message .time-message {
   font-size: 11px;
   text-align: right;
-  color: #ffffff94;
+  color: #ffffff;
+  position: absolute;
+  bottom: 3px;
+  right: 8px;
+}
+
+.they-message .time-message {
+  font-size: 11px;
+  text-align: right;
+  color: #0000009e;
   position: absolute;
   bottom: 3px;
   right: 8px;
@@ -473,13 +504,13 @@ img {
 }
 
 .they-message {
-  background-color: #474b4d;
+  background-color: #ffffff;
   border-radius: 10px 10px 10px 0px;
 }
 
 .section-contacts {
   position: fixed;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   width: 30vw;
   min-width: 333px;
   height: 100vh;
@@ -496,7 +527,7 @@ img {
 
 .section-new-group {
   position: fixed;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   width: 30vw;
   min-width: 333px;
   height: 100vh;
@@ -513,7 +544,7 @@ img {
 
 .section-new-group-name {
   position: fixed;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   width: 30vw;
   min-width: 333px;
   height: 100vh;
@@ -528,7 +559,7 @@ img {
 }
 
 #side-search-icon {
-  background-color: rgb(25, 25, 25);
+  background-color: rgb(222, 222, 222);
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -543,7 +574,7 @@ img {
 }
 
 #search-new-group {
-  background-color: rgb(25, 25, 25);
+  background-color: #eaeaea;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -558,7 +589,7 @@ img {
 }
 
 #contact-search-icon {
-  background-color: rgb(25, 25, 25);
+  background-color: #dedede;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -588,18 +619,18 @@ img {
   display: flex;
   align-items: end;
   height: 108px;
-  border-bottom: 0.5px solid rgb(51, 51, 51);
+  border-bottom: 0.5px solid rgb(255, 255, 255);
   justify-content: space-between;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
 #side_arrow_back {
-  color: #d9dee0;
+  color: black;
   display: flex;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -615,9 +646,9 @@ img {
 }
 
 #group_name_arrow_back {
-  color: #d9dee0;
+  color: black;
   display: flex;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -633,9 +664,9 @@ img {
 }
 
 #new_chat_arrow_back {
-  color: #d9dee0;
+  color: black;
   display: flex;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -651,9 +682,9 @@ img {
 }
 
 #new_contact_side_back {
-  color: #d9dee0;
+  color: black;
   display: flex;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 15px;
@@ -671,7 +702,7 @@ img {
 #search_button {
   border-radius: 4px;
   padding: 6px;
-  background-color: #5865f2;
+  background-color: #497ffb;
   color: white;
   margin-right: 3%;
 }
@@ -680,11 +711,15 @@ img {
   display: flex;
   justify-content: start;
   align-items: center;
-  color: #d9dee0;
+  color: black;
   font-weight: lighter;
   font-size: 13px;
   width: 100%;
   height: 76%;
+}
+
+.container-side-title h1 {
+  font-weight: 400;
 }
 
 .container-more-options {
@@ -702,13 +737,13 @@ img {
 
 .overlay_menu_options ul {
   position: absolute;
-  background: #252525;
+  background: #eaeaea;
   width: 13rem;
   height: max-content;
   list-style: none;
   padding-top: 10px;
   padding-bottom: 10px;
-  color: white;
+  color: rgb(0, 0, 0);
   font-size: 15px;
   border-radius: 3px;
   box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
@@ -726,7 +761,7 @@ img {
 }
 
 .menu_option li:hover {
-  background: #464646 !important;
+  background: #d4d4d4 !important;
 }
 
 .overlay-add-contact {
@@ -742,7 +777,7 @@ img {
 
 .left-side-menu {
   position: fixed;
-  background-color: rgb(33, 33, 33);
+  background-color: #eaeaea;
   width: 30vw;
   min-width: 333px;
   height: 100vh;
@@ -778,19 +813,20 @@ img {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  align-items: start;
+  align-items: center;
   min-width: 31px;
 }
 
 .circle_notification {
   width: 19px;
   height: 17px;
-  background: #5765f2;
+  background: rgb(73, 127, 251);
   border-radius: 100%;
-  color: #212121;
+  color: #ffffff;
   font-size: 11px;
   text-align: center;
   padding-top: 2px;
+  padding-right: 1px;
   margin-top: 5px;
   display: none;
 }
@@ -831,12 +867,12 @@ img {
 }
 
 .container_contact_to_new_group li .material-icons {
-  color: white;
+  color: black;
   font-size: 16px;
 }
 
 .name_choosed_contact {
-  color: white;
+  color: black;
   font-size: 13px;
   overflow: hidden;
 }
@@ -855,10 +891,12 @@ img {
 .container_button_users_selected button {
   border-radius: 100%;
   padding: 10px;
-  background: #5765f2;
+  background: rgb(73, 127, 251);
   color: white;
   cursor: pointer;
   border: solid;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
 .container-group-img {
