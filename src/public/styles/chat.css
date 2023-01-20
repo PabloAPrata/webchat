@@ -384,8 +384,8 @@ img {
 .conversation-panel-messages {
   height: calc(100% - 135px);
   width: 100%;
-  /* background-color: #ffffff; */
-  background: url("../image/backgroundChat2.jpeg");
+  background: url("../image/endless-constellation.svg");
+  background-color: #ffffff;
   background-position: left top;
   background-size: auto;
   background-repeat: repeat;

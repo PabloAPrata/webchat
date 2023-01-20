@@ -85,6 +85,14 @@ module.exports = () => {
       socket.broadcast.emit("typing", data);
     });
 
+    socket.on("group_created", (data) => {
+      data.members.forEach((number) => {
+        socket.broadcast
+          .to(get_id_by_number(number))
+          .emit("group_created", data);
+      });
+    });
+
     socket.on("disconnect", () => {
       online_users.forEach((elemento, indice) => {
         if (elemento.id === socket.id) {

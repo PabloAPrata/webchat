@@ -108,6 +108,11 @@ socket.on("exit", (online_user_list_coming) => {
   put_status_contacts(online_user_list);
 });
 
+socket.on("group_created", (data) => {
+  chats_list.push(data);
+  load_chats_list();
+});
+
 socket.on("send_msg", (data) => {
   receive_message(data);
   if (hiddenPage) {
@@ -314,6 +319,21 @@ button_create_group.addEventListener("click", function () {
 
       section_new_group.style.transform = null;
     });
+
+    const dataGroup = {
+      group: true,
+      lmessage: {
+        sender_name: account_info.name,
+        sender_number: account_info.number,
+        text: "Adicionou você a este grupo!",
+        time: new Date(),
+      },
+      members: array_members,
+      name: name,
+      _id: newID,
+    };
+    // Emite os dados do grupo para os participantes
+    socket.emit("group_created", dataGroup);
   });
 });
 
@@ -512,8 +532,9 @@ async function createChatAPI(arrayMembers, name) {
   });
 }
 function put_chat_on_cache(data) {
+  console.log(data);
   chats_list.push({
-    group: false,
+    group: data.group,
     lmessage: {
       sender_name: data.sender_name,
       sender_number: data.sender_number,
@@ -537,6 +558,7 @@ function receive_message(data) {
   }
 
   const time = formatted_time(data.time);
+
   update_chat_on_list(data.chat_id, data.text, data.sender_name, "agora");
   put_chat_first(data.chat_id);
 
@@ -875,6 +897,7 @@ function send_message(text, chat_id) {
   input.value = "";
 
   const time = formatted_time(new Date());
+
   update_chat_on_list(chat_id, text, account_info.name, time);
   put_chat_first(chat_id);
   chat_selected_color(chat_id);
@@ -1025,6 +1048,9 @@ function open_chat() {
   chat_selected = id;
 
   remove_bubble(id);
+
+  console.log(cached_messages);
+  console.log(chats_list);
 }
 
 function open_chat_by_contact() {
@@ -1300,8 +1326,6 @@ function put_message_cache(chat_id, message) {
       messages: [message],
     });
   }
-
-  console.log(cached_messages);
 }
 
 function get_chat_by_id(chat_id) {
