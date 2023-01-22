@@ -20,6 +20,11 @@
     />
   </head>
   <body>
+    <aside class="sidebar">
+      <button disabled="disabled">
+        <span class="material-icons"> chat_bubble </span>
+      </button>
+    </aside>
     <main class="app">
       <section class="block-messages">
         <header class="chatlist-header">
@@ -33,9 +38,9 @@
             id="new-chat"
             class="material-icons"
             title="Nova conversa"
-            style="margin: 0; font-size: 21px"
+            style="margin: 0; font-size: 23px"
           >
-            chat
+            people
           </span>
           <div class="container-more-options">
             <span id="more_vert" class="material-icons" title="Mais opções">
@@ -56,7 +61,7 @@
             id="input_search_chat"
             title="Caixa de texto de pesquisa"
             type="text"
-            placeholder="Pesquisar ou começar uma nova conversa"
+            placeholder="Pesquisar uma conversa"
           />
           <span
             id="clear_search_chat"
