@@ -36,14 +36,13 @@ const sound_new_message = document.getElementById("sound_new_message");
 const ul_chat = document.getElementById("container-list");
 const chat_container = document.getElementById("chat-container");
 const conversation_body = document.getElementById("conversation");
-const username_div = document.getElementById("your-name-header");
+const username_div = document.getElementById("profile_name");
 const new_chat = document.getElementById("new-chat");
 const section_contacts = document.getElementById("section-contacts");
 const side_arrow_back = document.getElementById("side_arrow_back");
 const side_search_icon = document.getElementById("side-search-icon");
 const side_more_vert = document.getElementById("more_vert");
 const menu_option = document.getElementById("menu_option");
-const overlay_menu_option = document.getElementById("overlay_menu_option");
 const filter_list = document.getElementById("filter_list");
 const side_contacts = document.getElementById("side-contacts");
 const input_search_chat = document.getElementById("input_search_chat");
@@ -55,7 +54,7 @@ const new_contact_div = document.getElementById("new-contact-div");
 const new_contact_side_back = document.getElementById("new_contact_side_back");
 const search_button = document.getElementById("search_button");
 const input_new_contact = document.getElementById("input_new_contact");
-const disconnect_button = document.getElementById("disconnect-button");
+const disconnect_button = document.getElementById("logout");
 const section_new_group = document.getElementById("section-new-group");
 const new_group = document.getElementById("new_group");
 const new_chat_arrow_back = document.getElementById("new_chat_arrow_back");
@@ -160,19 +159,6 @@ function close_side_contacts() {
   }, 200);
 }
 side_arrow_back.addEventListener("click", close_side_contacts);
-
-overlay_menu_option.addEventListener("click", (event) => {
-  if (event.target === overlay_menu_option)
-    overlay_menu_option.style.display = "none";
-});
-
-side_more_vert.addEventListener("click", () => {
-  if (menu_option.style.display == "block") {
-    overlay_menu_option.style.display = "none";
-  } else {
-    overlay_menu_option.style.display = "block";
-  }
-});
 
 filter_list.addEventListener("click", (event) => {
   if (filter_list.style.background == "rgb(73, 127, 251)") {

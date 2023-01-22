@@ -13,6 +13,14 @@ body {
   width: 100%;
 }
 
+body {
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  width: 100%;
+}
+
 /* Variáveis */
 
 .dark-mode:root {
@@ -46,15 +54,6 @@ body {
 *::-webkit-scrollbar-thumb {
   background-color: rgb(33, 33, 33);
   border-radius: 10px;
-}
-
-.app {
-  background-color: rgb(112, 112, 112);
-  display: flex;
-  align-items: center;
-  height: 100%;
-  width: 100vw;
-  overflow: hidden;
 }
 
 .block-messages {
@@ -150,7 +149,7 @@ body {
   align-items: center;
   height: 55px;
   border-bottom: 0.5px solid rgb(255 255 255);
-  justify-content: space-between;
+  justify-content: space-around;
   background-color: #eaeaea;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -159,6 +158,10 @@ body {
 
 .chatlist-header img {
   margin-left: 16px;
+}
+
+.title_button {
+  font-size: 11px;
 }
 
 .section-chats {
@@ -247,6 +250,14 @@ li > div {
   position: relative;
 }
 
+.contact-image img {
+  height: 2.2rem;
+  background-color: white;
+  border-radius: 100%;
+  border: solid 2px white;
+  box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
+}
+
 .new-group-image {
   padding: 5px;
   display: flex;
@@ -284,13 +295,13 @@ li > div {
   overflow: hidden;
 }
 
-img {
+/* img {
   height: 2.2rem;
   background-color: white;
   border-radius: 100%;
   border: solid 2px white;
   box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
-}
+} */
 
 .informations-header {
   display: flex;
@@ -353,6 +364,11 @@ img {
 
 .conversation-header img {
   margin-left: 20px;
+  height: 2.2rem;
+  background-color: white;
+  border-radius: 100%;
+  border: solid 2px white;
+  box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
 }
 
 .name-contact-header {
@@ -374,11 +390,13 @@ img {
   overflow-x: hidden;
 }
 
-.chatlist-header .material-icons {
-  color: black;
-  padding: 10px;
+.chatlist-header button {
+  border: none;
+  background: none;
   cursor: pointer;
-  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .conversation-panel-messages {
@@ -707,6 +725,10 @@ img {
   margin-right: 3%;
 }
 
+#new-chat {
+  cursor: pointer;
+}
+
 .container-side-title {
   display: flex;
   justify-content: start;
@@ -724,40 +746,6 @@ img {
 
 .container-more-options {
   position: relative;
-}
-
-.overlay_menu_options {
-  display: none;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  z-index: 1000;
-}
-
-.overlay_menu_options ul {
-  position: absolute;
-  background: #eaeaea;
-  width: 13rem;
-  height: max-content;
-  list-style: none;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  color: rgb(0, 0, 0);
-  font-size: 15px;
-  border-radius: 3px;
-  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
-  transition: all 200ms;
-  left: 14%;
-  top: 47px;
-}
-
-.overlay_menu_options li {
-  padding-left: 14px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  cursor: pointer;
-  transition: background 200ms;
 }
 
 .menu_option li:hover {
