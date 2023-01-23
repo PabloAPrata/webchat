@@ -518,7 +518,6 @@ async function createChatAPI(arrayMembers, name) {
   });
 }
 function put_chat_on_cache(data) {
-  console.log(data);
   chats_list.push({
     group: data.group,
     lmessage: {
@@ -1034,9 +1033,6 @@ function open_chat() {
   chat_selected = id;
 
   remove_bubble(id);
-
-  console.log(cached_messages);
-  console.log(chats_list);
 }
 
 function open_chat_by_contact() {

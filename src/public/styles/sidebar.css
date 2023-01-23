@@ -247,3 +247,9 @@
   width: calc(100% - 240px);
   left: 268px;
 }
+
+.sidebar .active span,
+.sidebar .active a {
+  background: white;
+  color: black;
+}
