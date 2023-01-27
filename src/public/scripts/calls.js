@@ -38,11 +38,8 @@ function load_historic_list() {
     const { type, duration, number, time } = e;
 
     if (!type || !duration || !number || !time) {
-      console.log(e);
       return;
     }
-
-    console.log(type, duration, number, time);
 
     const historic_li = document.createElement("li");
     const informations_historico = document.createElement("div");

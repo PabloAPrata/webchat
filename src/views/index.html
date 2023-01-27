@@ -23,6 +23,7 @@
     />
   </head>
   <body>
+    <div id="developer_button"></div>
     <aside id="sidebar" class="sidebar">
       <div class="logo_content">
         <div class="logo">
@@ -311,8 +312,12 @@
                 <span class="material-icons"> call_end </span>
               </button>
             </div>
-            <div class="container_myCam"></div>
-            <div class="container_otherCams"></div>
+            <div class="container_myCam">
+              <video id="user_video"></video>
+            </div>
+            <div class="container_otherCams">
+              <video id="peer_video"></video>
+            </div>
           </div>
         </div>
       </div>
@@ -320,9 +325,11 @@
     <audio id="sound_new_message" src="../sounds/new_message.mp3"></audio>
 
     <script src="../scripts/socket.io/client-dist/socket.io.js"></script>
+    <script src="../scripts/websocket.js"></script>
     <script src="../scripts/home.js"></script>
     <script src="../scripts/chat.js" type="module"></script>
     <script src="../scripts/calls.js" type="module"></script>
     <script src="../scripts/sidebar.js"></script>
+    <script src="../scripts/incall.js"></script>
   </body>
 </html>

@@ -213,6 +213,11 @@
   height: 15vh;
   border: solid white 1px;
   z-index: 4;
+  background-color: black;
+}
+
+.container_myCam video {
+  object-fit: cover;
 }
 
 .container_header_incall {

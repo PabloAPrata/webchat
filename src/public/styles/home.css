@@ -21,6 +21,16 @@ body {
   width: 100%;
 }
 
+#developer_button {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  height: 50px;
+  width: 50px;
+  background: red;
+  z-index: 99999999999;
+}
+
 /* Variáveis */
 
 .dark-mode:root {
