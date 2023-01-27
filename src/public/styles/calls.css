@@ -1,0 +1,248 @@
+#side-search-icon-call {
+  background-color: rgb(222, 222, 222);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 7px;
+  padding-right: 7px;
+  margin-left: 3%;
+  margin-right: 0;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 0px 0px 5px;
+  font-size: 19px;
+}
+
+.callList-header {
+  display: flex;
+  align-items: center;
+  height: 55px;
+  border-bottom: 0.5px solid rgb(255 255 255);
+  justify-content: start;
+  background-color: #eaeaea;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.callList-header h1 {
+  font-weight: 400;
+  margin: 0px 15px;
+  font-size: 21px;
+}
+
+.container-search-call {
+  display: flex;
+  height: 49px;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-search-call input {
+  height: 70%;
+  background-color: rgb(222, 222, 222);
+  border: none;
+  outline: none;
+  width: 100%;
+  color: rgb(0, 0, 0);
+  margin-right: 10px;
+  border-radius: 0px 5px 5px 0px;
+}
+
+.container-search-call input::placeholder {
+  color: #818181;
+}
+
+/* ?---------------------------------------------------------------- */
+
+.list_historico_call {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.list_historico_call li {
+  list-style: none;
+  position: relative;
+  height: 70px;
+  width: 100%;
+  border-bottom-color: rgb(250, 250, 250);
+  font-size: 14px;
+  color: rgb(36, 36, 36);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.list_historico_call li:hover {
+  background: #f0f0f0;
+}
+
+.list_historico_call li .contact_img img {
+  width: 2.2rem;
+  height: 2.2rem;
+  background: white;
+  border-radius: 100%;
+}
+
+.info_historico_number_type {
+  margin-left: 1.2rem;
+}
+
+.info_historico_number_type .icon_type .material-icons {
+  font-size: 15px;
+}
+
+.info_historico_number_type .icon_type {
+  margin-right: 7px;
+}
+
+.info_historico_number_type .text_type {
+  color: #616161;
+}
+
+.list_historico_call li:hover .buttons_historico {
+  opacity: 1;
+}
+
+.buttons_historico {
+  position: absolute;
+  right: 10px;
+  vertical-align: middle;
+  opacity: 0;
+  transition: all 0.17s ease, color 0.17s ease;
+}
+
+.buttons_historico button {
+  background-color: rgb(255, 255, 255);
+  border-bottom-style: solid;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.85;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border: solid 1px rgb(209, 209, 209);
+  border-radius: 6px;
+  cursor: pointer;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.buttons_historico button:hover {
+  background-color: rgb(251, 251, 251);
+}
+
+.buttons_historico .material-icons {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+/* ---------------------------------------------------------------- */
+.list_historico_call li:hover .call_info_historico {
+  opacity: 0;
+}
+.call_info_historico {
+  margin-right: 10px;
+  display: block;
+  font-size: 13px;
+}
+
+.call_info_duration {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- */
+
+.container_incall {
+  position: absolute;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+}
+
+.app_incall {
+  position: relative;
+  background: black;
+  width: 100%;
+  height: 100%;
+}
+
+.container_buttons_incall {
+  position: absolute;
+  bottom: 2rem;
+  width: 100%;
+  height: 4rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container_buttons_incall button .material-icons {
+  min-width: 50px;
+  border-radius: 12px;
+  line-height: 50px;
+  text-align: center;
+}
+
+.container_buttons_incall button {
+  background: white;
+  outline: none;
+  border: none;
+  width: 50px;
+  height: 50px;
+  margin: 0px 20px;
+  transition: all 0.4s ease;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  z-index: 5;
+}
+
+.container_myCam {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 15vw;
+  height: 15vh;
+  border: solid white 1px;
+  z-index: 4;
+}
+
+.container_header_incall {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 3rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff66;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.stopwatch_incall {
+  margin-left: 2rem;
+  font-size: 14px;
+  position: absolute;
+  left: 0;
+}
+
+.contact_name_incall {
+  font-size: 14px;
+}
+
+.container_otherCams {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0, 128, 0, 0.584);
+}

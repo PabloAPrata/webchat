@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webchat</title>
+    <title>MindMeet</title>
 
+    <link rel="stylesheet" href="../styles/home.css" />
     <link rel="stylesheet" href="../styles/chat.css" />
+    <link rel="stylesheet" href="../styles/calls.css" />
     <link rel="stylesheet" href="../styles/sidebar.css" />
 
     <link
@@ -27,7 +29,7 @@
           <img
             src="/image/DALL·E 2023-01-19 20.57.48 - A chat icon with an owl.png"
           />
-          <div class="logo_name">Webchat</div>
+          <div class="logo_name">MindMeet</div>
         </div>
         <button id="side_menu_btn">
           <span class="material-icons"> menu </span>
@@ -35,7 +37,7 @@
       </div>
       <ul id="aside_buttons" class="nav_list">
         <li>
-          <button class="active">
+          <button id="chat_button" class="active">
             <a href="#">
               <span class="material-icons"> chat_bubble </span>
               <span class="links_name"> Conversas </span>
@@ -44,13 +46,13 @@
           <span class="tooltip">Conversas</span>
         </li>
         <li>
-          <button>
+          <button id="call_button">
             <a href="#">
               <span class="material-icons"> videocam </span>
-              <span class="links_name"> Ligações </span>
+              <span class="links_name"> Chamadas </span>
             </a>
           </button>
-          <span class="tooltip">Ligações</span>
+          <span class="tooltip">Chamadas</span>
         </li>
       </ul>
 
@@ -69,198 +71,258 @@
     </aside>
 
     <main class="app">
-      <section class="block-messages">
-        <header class="chatlist-header">
-          <button id="new-contact" title="Adicionar contato">
-            <span style="font-size: 21px" class="material-icons"
-              >person_add</span
-            >
-          </button>
+      <div id="app_chat_container" class="app_chat_container">
+        <section class="block-messages">
+          <header class="chatlist-header">
+            <button id="new-contact" title="Adicionar contato">
+              <span style="font-size: 21px" class="material-icons"
+                >person_add</span
+              >
+            </button>
 
-          <button title="Criar grupo" id="new-group-button">
-            <span class="material-icons"> groups </span>
-          </button>
+            <button title="Criar grupo" id="new-group-button">
+              <span class="material-icons"> groups </span>
+            </button>
 
-          <button id="new-chat" title="Nova conversa">
-            <img
-              style="height: 16px; margin: 0"
-              src="../image/icons/edit.png"
+            <button id="new-chat" title="Nova conversa">
+              <img
+                style="height: 16px; margin: 0"
+                src="../image/icons/edit.png"
+              />
+            </button>
+          </header>
+          <div class="container-search-chat">
+            <span id="search-icon" class="material-icons"> search </span>
+            <input
+              id="input_search_chat"
+              title="Caixa de texto de pesquisa"
+              type="text"
+              placeholder="Pesquisar uma conversa"
             />
-          </button>
-        </header>
-        <div class="container-search-chat">
-          <span id="search-icon" class="material-icons"> search </span>
-          <input
-            id="input_search_chat"
-            title="Caixa de texto de pesquisa"
-            type="text"
-            placeholder="Pesquisar uma conversa"
-          />
-          <span
-            id="clear_search_chat"
-            class="material-icons"
-            style="display: none"
-            title="Fechar pequisa"
-          >
-            clear
-          </span>
-          <span
-            id="filter_list"
-            class="material-icons"
-            title="Filtro conversas não lidas"
-          >
-            filter_list
-          </span>
-        </div>
-        <div class="section-chats">
-          <ul id="container_search_chat" class="container_search_chat"></ul>
-          <ul id="container-list" class="container-list"></ul>
-        </div>
-      </section>
-
-      <section id="section-contacts" class="section-contacts">
-        <header class="contactslist-header">
-          <div class="container-side-title">
-            <span id="side_arrow_back" class="material-icons">
-              arrow_back
+            <span
+              id="clear_search_chat"
+              class="material-icons"
+              style="display: none"
+              title="Fechar pequisa"
+            >
+              clear
             </span>
-            <h1>Nova conversa</h1>
+            <span
+              id="filter_list"
+              class="material-icons"
+              title="Filtro conversas não lidas"
+            >
+              filter_list
+            </span>
           </div>
-        </header>
-        <div class="container-search-chat">
-          <span id="side-search-icon" class="material-icons"> search </span>
-          <input
-            id="input_search_contacts"
-            title="Caixa de texto de pesquisa"
-            type="text"
-            placeholder="Pesquisar contatos"
-            style="margin-right: 3%"
-          />
-        </div>
-        <div class="container_novo_grupo">
-          <ul id="container_search_contacts" class="container_search_chat"></ul>
-          <ul>
-            <li id="new_group" class="new_group">
-              <div>
-                <div class="new-group-image">
-                  <img src="../image/group_add_black_24dp.svg" />
+          <div class="section-chats">
+            <ul id="container_search_chat" class="container_search_chat"></ul>
+            <ul id="container-list" class="container-list"></ul>
+          </div>
+        </section>
+
+        <section id="section-contacts" class="section-contacts">
+          <header class="contactslist-header">
+            <div class="container-side-title">
+              <span id="side_arrow_back" class="material-icons">
+                arrow_back
+              </span>
+              <h1>Nova conversa</h1>
+            </div>
+          </header>
+          <div class="container-search-chat">
+            <span id="side-search-icon" class="material-icons"> search </span>
+            <input
+              id="input_search_contacts"
+              title="Caixa de texto de pesquisa"
+              type="text"
+              placeholder="Pesquisar contatos"
+              style="margin-right: 3%"
+            />
+          </div>
+          <div class="container_novo_grupo">
+            <ul
+              id="container_search_contacts"
+              class="container_search_chat"
+            ></ul>
+            <ul>
+              <li id="new_group" class="new_group">
+                <div>
+                  <div class="new-group-image">
+                    <img src="../image/group_add_black_24dp.svg" />
+                  </div>
+                  <div class="contact-info">
+                    <div class="name-user">Novo grupo</div>
+                  </div>
                 </div>
-                <div class="contact-info">
-                  <div class="name-user">Novo grupo</div>
+              </li>
+            </ul>
+          </div>
+          <ul id="side-contacts" class="side-contacts"></ul>
+        </section>
+
+        <section id="section-new-group" class="section-new-group">
+          <header class="contactslist-header">
+            <div class="container-side-title">
+              <span id="new_chat_arrow_back" class="material-icons">
+                arrow_back
+              </span>
+              <h1 style="font-weight: 400">Adicionar participantes ao grupo</h1>
+            </div>
+          </header>
+          <div
+            id="container_contact_to_new_group"
+            class="container_contact_to_new_group"
+          >
+            <ul id="new_group_selected"></ul>
+          </div>
+          <div class="container-search-new-group">
+            <input
+              id="input_search_newG"
+              title="Caixa de texto de pesquisa"
+              type="text"
+              placeholder="Digite o nome do contato"
+              style="margin-right: 6%; margin-left: 6%"
+            />
+          </div>
+
+          <ul id="ul_new_group" class="side-contacts"></ul>
+
+          <div
+            id="container_button_users_selected"
+            class="container_button_users_selected"
+          >
+            <button id="button_users_selected">
+              <span class="material-icons"> check </span>
+            </button>
+          </div>
+        </section>
+
+        <section id="section-new-group-name" class="section-new-group-name">
+          <header class="contactslist-header">
+            <div class="container-side-title">
+              <span id="group_name_arrow_back" class="material-icons">
+                arrow_back
+              </span>
+              <h1 style="font-weight: 400">Novo grupo</h1>
+            </div>
+          </header>
+
+          <div class="container-group-img">
+            <img src="../image/user-3296.svg" alt="" />
+          </div>
+
+          <div
+            class="container-search-new-group"
+            style="
+              border-bottom: 1px solid #818181;
+              margin-left: 6%;
+              margin-right: 6%;
+            "
+          >
+            <input
+              id="group_name_input"
+              type="text"
+              placeholder="Nome do grupo"
+            />
+            <span id="name-group-caractere-counter">25</span>
+            <button class="material-icons">sentiment_satisfied_alt</button>
+          </div>
+
+          <div
+            id="container_button_name_group"
+            class="container_button_users_selected"
+          >
+            <button id="button_create_group">
+              <span class="material-icons"> check </span>
+            </button>
+          </div>
+        </section>
+
+        <section id="new-contact-div" class="left-side-menu">
+          <header class="contactslist-header">
+            <div class="container-side-title">
+              <span id="new_contact_side_back" class="material-icons">
+                arrow_back
+              </span>
+              <h1>Adicione um contato.</h1>
+            </div>
+          </header>
+          <div class="container-search-chat">
+            <span id="contact-search-icon" class="material-icons">
+              search
+            </span>
+            <input
+              id="input_new_contact"
+              title="Caixa de texto de pesquisa"
+              type="text"
+              placeholder="Digite o número do contato"
+            />
+            <span id="search_button" class="material-icons">
+              person_search
+            </span>
+          </div>
+        </section>
+        <section id="conversation" class="conversation">
+          <h1>Converse</h1>
+          <p class="text-start">Envie e receba mensagens para seus amigos.</p>
+        </section>
+      </div>
+
+      <div id="app_call_container" class="app_call_container">
+        <div class="container_phone">
+          <section class="block-messages">
+            <header class="callList-header">
+              <h1>Chamadas</h1>
+            </header>
+            <div class="container-search-call">
+              <span id="side-search-icon-call" class="material-icons">
+                search
+              </span>
+              <input
+                id="input_search_call"
+                title="Caixa de texto de pesquisa"
+                type="text"
+                placeholder="Pesquisar ou começar uma nova chamada"
+              />
+            </div>
+
+            <ul id="side_historic_call" class="list_historico_call"></ul>
+          </section>
+        </div>
+        <div class="container_incall">
+          <div class="app_incall">
+            <div class="container_header_incall">
+              <div class="info_header_incall">
+                <div class="stopwatch_incall">15:10:45</div>
+                <div class="contact_name_incall">
+                  Augusto Leonardo Pereira Alves
                 </div>
               </div>
-            </li>
-          </ul>
-        </div>
-        <ul id="side-contacts" class="side-contacts"></ul>
-      </section>
-
-      <section id="section-new-group" class="section-new-group">
-        <header class="contactslist-header">
-          <div class="container-side-title">
-            <span id="new_chat_arrow_back" class="material-icons">
-              arrow_back
-            </span>
-            <h1 style="font-weight: 400">Adicionar participantes ao grupo</h1>
+            </div>
+            <div class="container_buttons_incall">
+              <button>
+                <span class="material-icons"> mic </span>
+              </button>
+              <button>
+                <span class="material-icons"> videocam </span>
+              </button>
+              <button>
+                <span class="material-icons"> call_end </span>
+              </button>
+            </div>
+            <div class="container_myCam"></div>
+            <div class="container_otherCams"></div>
           </div>
-        </header>
-        <div
-          id="container_contact_to_new_group"
-          class="container_contact_to_new_group"
-        >
-          <ul id="new_group_selected"></ul>
         </div>
-        <div class="container-search-new-group">
-          <input
-            id="input_search_newG"
-            title="Caixa de texto de pesquisa"
-            type="text"
-            placeholder="Digite o nome do contato"
-            style="margin-right: 6%; margin-left: 6%"
-          />
-        </div>
-
-        <ul id="ul_new_group" class="side-contacts"></ul>
-
-        <div
-          id="container_button_users_selected"
-          class="container_button_users_selected"
-        >
-          <button id="button_users_selected">
-            <span class="material-icons"> check </span>
-          </button>
-        </div>
-      </section>
-
-      <section id="section-new-group-name" class="section-new-group-name">
-        <header class="contactslist-header">
-          <div class="container-side-title">
-            <span id="group_name_arrow_back" class="material-icons">
-              arrow_back
-            </span>
-            <h1 style="font-weight: 400">Novo grupo</h1>
-          </div>
-        </header>
-
-        <div class="container-group-img">
-          <img src="../image/user-3296.svg" alt="" />
-        </div>
-
-        <div
-          class="container-search-new-group"
-          style="
-            border-bottom: 1px solid #818181;
-            margin-left: 6%;
-            margin-right: 6%;
-          "
-        >
-          <input
-            id="group_name_input"
-            type="text"
-            placeholder="Nome do grupo"
-          />
-          <span id="name-group-caractere-counter">25</span>
-          <button class="material-icons">sentiment_satisfied_alt</button>
-        </div>
-
-        <div
-          id="container_button_name_group"
-          class="container_button_users_selected"
-        >
-          <button id="button_create_group">
-            <span class="material-icons"> check </span>
-          </button>
-        </div>
-      </section>
-
-      <section id="new-contact-div" class="left-side-menu">
-        <header class="contactslist-header">
-          <div class="container-side-title">
-            <span id="new_contact_side_back" class="material-icons">
-              arrow_back
-            </span>
-            <h1>Adicione um contato.</h1>
-          </div>
-        </header>
-        <div class="container-search-chat">
-          <span id="contact-search-icon" class="material-icons"> search </span>
-          <input
-            id="input_new_contact"
-            title="Caixa de texto de pesquisa"
-            type="text"
-            placeholder="Digite o número do contato"
-          />
-          <span id="search_button" class="material-icons"> person_search </span>
-        </div>
-      </section>
-      <section id="conversation" class="conversation">
-        <h1>Converse</h1>
-        <p class="text-start">Envie e receba mensagens para seus amigos.</p>
-      </section>
+      </div>
     </main>
     <audio id="sound_new_message" src="../sounds/new_message.mp3"></audio>
+
     <script src="../scripts/socket.io/client-dist/socket.io.js"></script>
+    <script src="../scripts/home.js"></script>
     <script src="../scripts/chat.js" type="module"></script>
+    <script src="../scripts/calls.js" type="module"></script>
     <script src="../scripts/sidebar.js"></script>
   </body>
 </html>

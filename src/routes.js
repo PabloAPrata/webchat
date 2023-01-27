@@ -8,6 +8,7 @@ const start_controller = require("./controllers/startController");
 const user_controller = require("./controllers/userController");
 const chat_controller = require("./controllers/chatController");
 const token_validator = require("./controllers/tokenController");
+const historic_controller = require("./controllers/historicController");
 
 // Tela de login
 router.get("/", login_controller.login_screen);
@@ -63,6 +64,20 @@ router.get(
   "/chat/messages/:id",
   token_validator.checkToken,
   chat_controller.loadMessages
+);
+
+// Gravar ligação no histórico de chamadas
+router.post(
+  "/calls/historic",
+  token_validator.checkToken,
+  historic_controller.storeHistoric
+);
+
+// Carregar histórico de chamadas
+router.get(
+  "/calls/historic",
+  token_validator.checkToken,
+  historic_controller.getHistoric
 );
 
 module.exports = router;

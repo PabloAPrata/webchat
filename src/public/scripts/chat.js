@@ -14,7 +14,7 @@ let contact_list_copy = [];
 
 let socket_id = null;
 let chat_selected = null;
-let members_chat_opened = [];
+let data_opened_chat = {};
 let token = localStorage.getItem("token");
 
 const account_info = {
@@ -45,6 +45,7 @@ const side_more_vert = document.getElementById("more_vert");
 const menu_option = document.getElementById("menu_option");
 const filter_list = document.getElementById("filter_list");
 const side_contacts = document.getElementById("side-contacts");
+
 const input_search_chat = document.getElementById("input_search_chat");
 const input_search_contacts = document.getElementById("input_search_contacts");
 const container_search_chat = document.getElementById("container_search_chat");
@@ -179,6 +180,7 @@ input_search_chat.addEventListener("focus", function () {
   clear_search_chat_button.style.display = "block";
   filter_list.style.display = "none";
   search_for_chat();
+  form_ul_search_chat();
 });
 
 input_search_contacts.addEventListener("keyup", function (e) {
@@ -199,6 +201,10 @@ new_contact_side_back.addEventListener("click", function () {
 
 new_chat_arrow_back.addEventListener("click", function () {
   section_new_group.style.transform = null;
+  // Poem as divs em sua forma original
+  new_group_selected.innerHTML = "";
+  group_name_input.value = "";
+  input_search_newG.value = "";
 });
 
 disconnect_button.addEventListener("click", function () {
@@ -320,6 +326,12 @@ button_create_group.addEventListener("click", function () {
     };
     // Emite os dados do grupo para os participantes
     socket.emit("group_created", dataGroup);
+
+    // Apaga as divs alteradas na criação do grupo e retorna tudo
+    // para sua forma original
+    new_group_selected.innerHTML = "";
+    group_name_input.value = "";
+    input_search_newG.value = "";
   });
 });
 
@@ -1176,24 +1188,6 @@ async function get_chat_list(token) {
   });
 }
 
-// async function createChatAPI(arrayMembers, name) {
-//   arrayMembers.sort();
-
-//   return new Promise((resolve, reject) => {
-//     ajax({
-//       url: "/chat/create",
-//       metodo: "post",
-//       headers: [{ header: "Authorization", value: `Bearer ${token}` }],
-//       body: {
-//         name,
-//         members: arrayMembers,
-//       },
-//       sucesso: resolve,
-//       erro: reject,
-//     });
-//   });
-// }
-
 async function get_contacts_list(token) {
   return new Promise((resolve, reject) => {
     ajax({
@@ -1204,31 +1198,6 @@ async function get_contacts_list(token) {
       erro: reject,
     });
   });
-
-  // ajax({
-  //   url: "/contacts/list",
-  //   metodo: "get",
-  //   headers: [{ header: "Authorization", value: `Bearer ${token}` }],
-  //   sucesso(resposta) {
-  //     if (resposta.code === 200) {
-  //       const resposta_data = JSON.parse(resposta.data);
-
-  //       contacts_list = [];
-  //       contacts_list = [...resposta_data.contacts];
-
-  //       load_contacts_list();
-
-  //       load_chats_list();
-  //       put_status_contacts(online_user_list);
-  //     } else {
-  //       alert("Please select a contact");
-  //     }
-  //   },
-  //   erro(erro) {
-  //     const msg = JSON.parse(erro.data).msg;
-  //     alert(msg);
-  //   },
-  // });
 }
 
 function load_contacts_list() {
@@ -1555,11 +1524,12 @@ function search_for_contacts() {
       contacts_li.classList.add("li-contacts");
 
       side_contacts.appendChild(contacts_li);
-
       return contacts_li;
     });
 
-    elementosHTML.forEach((element) => side_contacts.appendChild(element));
+    elementosHTML.forEach((element) => {
+      side_contacts.appendChild(element);
+    });
   };
 
   displayChats(contacts_filtered);
@@ -1697,7 +1667,6 @@ function search_contact_new_group() {
       contacts_li.classList.add("li-contacts");
 
       side_contacts.appendChild(contacts_li);
-
       return contacts_li;
     });
 
@@ -1783,7 +1752,6 @@ function remove_contact_new_group() {
   contacts_li.classList.add("li-contacts");
 
   side_contacts.appendChild(contacts_li);
-
   ul_new_group.appendChild(contacts_li);
 
   div.remove();
@@ -1843,3 +1811,19 @@ get_contacts_list(token).then((resposta) => {
     put_status_contacts(online_user_list);
   });
 });
+
+function form_ul_search_chat() {
+  const containerChatlist = document.getElementById("container-list");
+  const containerSeachChatList = document.getElementById(
+    "container_search_chat"
+  );
+  containerSeachChatList.innerHTML = "";
+  const chats_list = containerChatlist.childNodes;
+
+  chats_list.forEach((e) => {
+    const elementCopy = e.cloneNode(true);
+    elementCopy.style.transform = "";
+    elementCopy.onclick = open_chat;
+    containerSeachChatList.appendChild(elementCopy);
+  });
+}
