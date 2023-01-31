@@ -290,6 +290,7 @@ li > div {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  text-align: center;
 }
 
 .conversation-header {
@@ -311,6 +312,30 @@ li > div {
   border-radius: 100%;
   border: solid 2px white;
   box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
+}
+
+.conversation-header .container_buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  border: 1px solid rgb(224 224 224);
+  border-radius: 14px;
+}
+
+.conversation-header .container_buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: #f7f7f7;
+  padding: 8px;
+  border-radius: 14px;
+}
+
+.conversation-header .container_buttons button:hover {
+  background: white;
 }
 
 .name-contact-header {

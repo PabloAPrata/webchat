@@ -66,6 +66,8 @@ function load_historic_list() {
       icon_icon_type.textContent = "call_received";
     } else {
       icon_icon_type.textContent = "phone_missed";
+      icon_icon_type.style.color = "#bf0000";
+      text_type.style.color = "#bf0000";
     }
 
     informations_historico.className = "informations_historico";

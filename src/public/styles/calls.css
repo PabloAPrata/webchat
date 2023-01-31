@@ -205,6 +205,10 @@
   z-index: 5;
 }
 
+.container_buttons_incall button:hover {
+  background: rgb(210, 210, 210);
+}
+
 .container_myCam {
   position: absolute;
   bottom: 2px;
@@ -249,5 +253,104 @@
   width: 100%;
   height: 100%;
   position: absolute;
-  background-color: rgba(0, 128, 0, 0.584);
+}
+
+#hangup_button {
+  color: red;
+}
+
+#hangup_button:hover {
+  color: black;
+}
+
+.conversation .main_info_data_call {
+  height: 100%;
+  width: calc(100% - 30px);
+}
+
+.conversation .title_data_call {
+  height: 55px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-weight: 400;
+  font-size: 21px;
+  justify-content: center;
+}
+
+.conversation .container_info_data_call {
+  height: 50%;
+  width: 100%;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.container_info_data_call .contact {
+  height: fit-content;
+  border-bottom: 1px solid rgb(237, 237, 237);
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 14px;
+  background: #eaeaea;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.container_info_data_call .info_call {
+  height: 50%;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 14px;
+  border: 1px solid rgb(237, 237, 237);
+  background: #eaeaea;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.container_info_data_call .contact img {
+  height: 2.2rem;
+  background-color: white;
+  border-radius: 100%;
+  border: solid 2px white;
+  box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
+  margin-right: 1rem;
+}
+
+.contact .informations_historico_contact {
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+}
+
+.informations_historico_contact p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.contact .container_buttons {
+  display: flex;
+}
+
+.contact .container_buttons button {
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 14px;
+}
+
+.contact .container_buttons button:hover {
+  background: #ffffff;
+}
+
+.container_buttons button span {
+  font-size: 20px;
 }

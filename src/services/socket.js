@@ -142,5 +142,10 @@ module.exports = () => {
       console.log("🚀 ~ file: socket.js:146 ~ socket.on ~ answer");
       socket.broadcast.to(roomName).emit("answer", answer);
     });
+
+    socket.on("leave", (roomName) => {
+      socket.leave(roomName);
+      socket.broadcast.to(roomName).emit("leave", roomName);
+    });
   });
 };

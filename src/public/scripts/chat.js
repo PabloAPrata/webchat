@@ -14,7 +14,11 @@ let contact_list_copy = [];
 
 let socket_id = null;
 let chat_selected = null;
-let data_opened_chat = {};
+let current_contact_selected = {
+  name: null,
+  number: null,
+  group: false,
+};
 let token = localStorage.getItem("token");
 
 const account_info = {
@@ -84,7 +88,6 @@ const button_create_group = document.getElementById("button_create_group");
 
 socket.on("connect", () => {
   const mySocketID = socket.id;
-  console.log("🚀 ~ file: chat.js:89 ~ socket.on ~ mySocketID", mySocketID);
 });
 
 socket.on("online_user_list", (online_user_list_coming, socket_id_coming) => {
@@ -696,7 +699,7 @@ function load_chats_list() {
     contact_info.appendChild(name_user);
     contact_info.appendChild(last_message);
     contact_image.appendChild(img);
-    contact_image.appendChild(status);
+
     div_infos.appendChild(contact_image);
     div_infos.appendChild(contact_info);
     container_time_notification.appendChild(time);
@@ -717,6 +720,14 @@ function load_chats_list() {
       last_message.textContent = `${e.lmessage.sender_name}: ${e.lmessage.text}`;
     }
 
+    if (e.group == false) {
+      chat_li.setAttribute("user_number", other_members[0]);
+      chat_li.setAttribute("group", false);
+      contact_image.appendChild(status);
+    } else {
+      chat_li.setAttribute("group", true);
+    }
+
     ul_chat.appendChild(chat_li);
   });
 
@@ -732,6 +743,11 @@ function load_header_chat(id) {
   const img = document.createElement("img");
   const information = document.createElement("div");
   const p = document.createElement("p");
+  const container_buttons = document.createElement("div");
+  const button_video = document.createElement("button");
+  const button_audio = document.createElement("button");
+  const icon_button_video = document.createElement("span");
+  const icon_button_audio = document.createElement("span");
 
   header.setAttribute("id", "conversation-header");
   header.className = "conversation-header";
@@ -739,10 +755,20 @@ function load_header_chat(id) {
   information.className = "informations-header";
   information.setAttribute("id", "informations-header");
   p.className = "name-contact-header";
+  container_buttons.classList = "container_buttons";
+  icon_button_video.classList = "material-icons";
+  icon_button_video.textContent = " videocam ";
+  icon_button_audio.classList = "material-icons";
+  icon_button_audio.textContent = " phone ";
+  button_video.appendChild(icon_button_video);
+  button_audio.appendChild(icon_button_audio);
+  container_buttons.appendChild(button_video);
+  container_buttons.appendChild(button_audio);
 
   header.appendChild(img);
   information.appendChild(p);
   header.appendChild(information);
+  header.appendChild(container_buttons);
   conversation_body.appendChild(header);
 
   p.textContent = name_user;
@@ -1044,6 +1070,9 @@ function open_chat() {
   chat_selected = id;
 
   remove_bubble(id);
+
+  const group = document.getElementById(id).getAttribute("group");
+  if (group === "false") get_contact_selected(id);
 }
 
 function open_chat_by_contact() {
@@ -1068,6 +1097,7 @@ function open_chat_by_contact() {
     chat_selected_color(id);
 
     close_side_contacts();
+    get_contact_selected(id);
 
     return;
   }
@@ -1093,6 +1123,7 @@ function open_chat_by_contact() {
 
     close_side_contacts();
 
+    get_contact_selected(id);
     return;
   }
 
@@ -1124,6 +1155,8 @@ function open_chat_by_contact() {
       put_status_contacts(online_user_list);
     });
   });
+
+  get_contact_selected(id);
 }
 
 function get_chat_by_members(arrayMembers) {
@@ -1826,3 +1859,14 @@ function form_ul_search_chat() {
     containerSeachChatList.appendChild(elementCopy);
   });
 }
+
+function get_contact_selected(id) {
+  const div = document.getElementById(id);
+  current_contact_selected.name = div.getAttribute("user_name");
+  current_contact_selected.group = div.getAttribute("group");
+  current_contact_selected.number = div.getAttribute("user_number");
+}
+
+function do_call(number) {}
+
+function do_videocall(number) {}
