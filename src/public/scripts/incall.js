@@ -25,13 +25,15 @@ socket.on("created", () => {
   creator = true;
 
   navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
+    .getUserMedia({ video: true, audio: true })
     .then(function (stream) {
       userStream = stream;
       user_video.style.width = "100%";
       user_video.style.height = "100%";
       user_video.srcObject = stream;
-      user_video.play();
+      user_video.onloadedmetadata = function (e) {
+        user_video.play();
+      };
     })
     .catch(function (err) {
       console.log("An error occurred: " + err);
@@ -40,19 +42,23 @@ socket.on("created", () => {
 
 socket.on("joined", () => {
   creator = false;
+
   navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
+    .getUserMedia({ audio: true, video: true })
     .then(function (stream) {
       userStream = stream;
       user_video.style.width = "100%";
       user_video.style.height = "100%";
       user_video.srcObject = stream;
-      user_video.play();
+      user_video.onloadedmetadata = function (e) {
+        user_video.play();
+      };
+      socket.emit("ready", roomName);
     })
     .catch(function (err) {
       console.log("An error occurred: " + err);
+      alert("Couldn't Access User Media");
     });
-  socket.emit("ready", roomName);
 });
 
 socket.on("full", () => {
@@ -64,9 +70,12 @@ socket.on("ready", () => {
     rtcPeerConnection = new RTCPeerConnection(iceServers);
     rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
     rtcPeerConnection.ontrack = OnTrackFunction;
-    userStream.getTracks().forEach((track) => {
-      rtcPeerConnection.addTrack(track, userStream);
-    });
+    // console.log(userStream.getTracks());
+    // userStream.getTracks().forEach((track) => {
+    //   rtcPeerConnection.addTrack(track, userStream);
+    // });
+    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
 
     rtcPeerConnection
       .createOffer()
@@ -90,9 +99,12 @@ socket.on("offer", (offer) => {
     rtcPeerConnection = new RTCPeerConnection(iceServers);
     rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
     rtcPeerConnection.ontrack = OnTrackFunction;
-    userStream.getTracks().forEach((track) => {
-      rtcPeerConnection.addTrack(track, userStream);
-    });
+    // console.log(userStream.getTracks());
+    // userStream.getTracks().forEach((track) => {
+    //   rtcPeerConnection.addTrack(track, userStream);
+    // });
+    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
 
     rtcPeerConnection.setRemoteDescription(offer);
     rtcPeerConnection
@@ -122,5 +134,8 @@ function OnTrackFunction(event) {
   peer_video.style.width = "100%";
   peer_video.style.height = "100%";
   peer_video.srcObject = event.streams[0];
-  peer_video.play();
+
+  peer_video.onloadedmetadata = function (e) {
+    peer_video.play();
+  };
 }
