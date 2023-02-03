@@ -28,6 +28,8 @@ const account_info = {
   text: "Nothing",
 };
 
+window.account_info = account_info;
+
 // SONS
 
 // Som de notificação
@@ -504,6 +506,7 @@ function autentication(token) {
         account_info.socket_id = user._id;
 
         username_div.textContent = account_info.name;
+        window.account_info = account_info;
         socket.emit("register", account_info);
       } else {
       }
@@ -623,7 +626,7 @@ function remove_my_number(array_members) {
   return result;
 }
 
-function get_name_user_by_number(number) {
+window.get_name_user_by_number = function (number) {
   let size = contacts_list.length;
   let name = null;
 
@@ -636,7 +639,7 @@ function get_name_user_by_number(number) {
 
   if (name === null) return number;
   else return name;
-}
+};
 
 function load_chats_list() {
   ul_chat.innerHTML = "";
@@ -734,7 +737,7 @@ function load_chats_list() {
   return true;
 }
 
-function load_header_chat(id) {
+function load_header_chat(id, group) {
   let name_user = document.getElementById(id).getAttribute("user_name");
 
   conversation_body.innerHTML = "";
@@ -764,14 +767,59 @@ function load_header_chat(id) {
   button_audio.appendChild(icon_button_audio);
   container_buttons.appendChild(button_video);
   container_buttons.appendChild(button_audio);
+  button_audio.onclick = do_call;
+  button_video.onclick = do_videocall;
 
   header.appendChild(img);
   information.appendChild(p);
   header.appendChild(information);
-  header.appendChild(container_buttons);
+
+  if (!group) {
+    header.appendChild(container_buttons);
+  }
+
   conversation_body.appendChild(header);
 
   p.textContent = name_user;
+}
+
+function removeNonNumbers(str) {
+  return str.replace(/[^0-9]/g, "");
+}
+
+function do_call() {
+  console.log(
+    "Fazendo ligação de audio para: " + current_contact_selected.name
+  );
+  const contact_selected = removeNonNumbers(current_contact_selected.number);
+  const my_number = removeNonNumbers(account_info.number);
+
+  const number_room = contact_selected + "@" + my_number;
+
+  const data = {
+    from: account_info.number,
+    to: current_contact_selected.number,
+    type: "audio",
+    room: number_room,
+  };
+
+  socket.emit("calling", data);
+}
+
+function do_videocall() {
+  const contact_selected = removeNonNumbers(current_contact_selected.number);
+  const my_number = removeNonNumbers(account_info.number);
+
+  const number_room = contact_selected + "@" + my_number;
+
+  const data = {
+    from: account_info.number,
+    to: current_contact_selected.number,
+    type: "video",
+    room: number_room,
+  };
+
+  socket.emit("calling", data);
 }
 
 function load_messages_chat(cached_messages, id) {
@@ -1058,10 +1106,12 @@ function chat_selected_color(id) {
 
 function open_chat() {
   const id = this.id;
+  const group = document.getElementById(id).getAttribute("group");
 
   chat_selected_color(id);
 
-  load_header_chat(id);
+  if (group === "false") load_header_chat(id, false);
+  if (group === "true") load_header_chat(id, true);
 
   load_messages_chat(cached_messages, id);
 
@@ -1071,7 +1121,6 @@ function open_chat() {
 
   remove_bubble(id);
 
-  const group = document.getElementById(id).getAttribute("group");
   if (group === "false") get_contact_selected(id);
 }
 
@@ -1866,7 +1915,3 @@ function get_contact_selected(id) {
   current_contact_selected.group = div.getAttribute("group");
   current_contact_selected.number = div.getAttribute("user_number");
 }
-
-function do_call(number) {}
-
-function do_videocall(number) {}

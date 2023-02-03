@@ -115,3 +115,123 @@ function load_historic_list() {
     side_historic_call.appendChild(historic_li);
   });
 }
+
+function incoming_call_div(number, type, room) {
+  const incomingCallNtf = document.createElement("div");
+  incomingCallNtf.classList.add("incoming_call_ntf");
+  incomingCallNtf.setAttribute("id", "incoming_call_ntf");
+  incomingCallNtf.setAttribute("from", number);
+  incomingCallNtf.setAttribute("type", type);
+
+  const mainIncomingCall = document.createElement("div");
+  mainIncomingCall.classList.add("main_incoming_call");
+  incomingCallNtf.appendChild(mainIncomingCall);
+
+  const infoIncomingCall = document.createElement("div");
+  infoIncomingCall.classList.add("info_incoming_call");
+  mainIncomingCall.appendChild(infoIncomingCall);
+
+  const contactInfo = document.createElement("div");
+  contactInfo.classList.add("contact_info");
+  infoIncomingCall.appendChild(contactInfo);
+
+  const img = document.createElement("img");
+  img.style.height = "75px";
+  img.src = "../image/user-3296.svg";
+  contactInfo.appendChild(img);
+
+  const p = document.createElement("p");
+  p.textContent = get_name_user_by_number(number);
+  contactInfo.appendChild(p);
+
+  const textInfo = document.createElement("div");
+  textInfo.classList.add("text_info");
+  textInfo.textContent = `Chamada de ${type}`;
+  infoIncomingCall.appendChild(textInfo);
+
+  const containerButtons = document.createElement("div");
+  containerButtons.classList.add("container_buttons");
+  mainIncomingCall.appendChild(containerButtons);
+
+  const acceptCallButton = document.createElement("button");
+  acceptCallButton.classList.add("accept_call_button");
+  acceptCallButton.onclick = () => {
+    accept_call(number, type, room);
+  };
+  containerButtons.appendChild(acceptCallButton);
+
+  const acceptCallButtonSpan = document.createElement("span");
+  acceptCallButtonSpan.classList.add("material-icons");
+  acceptCallButtonSpan.textContent = "call";
+  acceptCallButton.appendChild(acceptCallButtonSpan);
+
+  const rejectCallButton = document.createElement("button");
+  rejectCallButton.classList.add("reject_call_button");
+  rejectCallButton.onclick = () => {
+    reject_call(number, type, room);
+  };
+  containerButtons.appendChild(rejectCallButton);
+
+  const rejectCallButtonSpan = document.createElement("span");
+  rejectCallButtonSpan.classList.add("material-icons");
+  rejectCallButtonSpan.textContent = "call_end";
+  rejectCallButton.appendChild(rejectCallButtonSpan);
+
+  const body = document.getElementsByTagName("body")[0];
+  body.appendChild(incomingCallNtf);
+
+  setTimeout(() => {
+    incomingCallNtf.style.opacity = "1";
+  }, 200);
+}
+
+function accept_call(number, type, room) {
+  const incomingCallNtf = document.getElementById("incoming_call_ntf");
+
+  openVideoApp();
+
+  join_call_event(number, type, room);
+
+  // VISUAL
+  if (incomingCallNtf) {
+    incomingCallNtf.style.opacity = "0";
+    setTimeout(() => {
+      incomingCallNtf.remove();
+    }, 500);
+  }
+
+  const data = {
+    from: window.account_info.number,
+    to: number,
+    type: type,
+    room: room,
+  };
+
+  socket.emit("accepted_call", data);
+}
+
+function reject_call(number, type, room) {
+  const incomingCallNtf = document.getElementById("incoming_call_ntf");
+
+  if (incomingCallNtf) {
+    incomingCallNtf.style.opacity = "0";
+    setTimeout(() => {
+      incomingCallNtf.remove();
+    }, 1000);
+  }
+}
+
+socket.on("incoming_call", (data) => {
+  incoming_call_div(data.from, data.type, data.room);
+});
+
+socket.on("accepted_call", (data) => {
+  console.log(data);
+
+  const contact_name_incall = document.getElementById("contact_name_incall");
+  contact_name_incall.textContent = get_name_user_by_number(data.from);
+
+  if (data.type === "video") join_video_room(data.room);
+
+  if (data.type === "audio") join_audio_room(data.room);
+});

@@ -147,5 +147,30 @@ module.exports = () => {
       socket.leave(roomName);
       socket.broadcast.to(roomName).emit("leave", roomName);
     });
+
+    socket.on("calling", (data) => {
+      let send = false;
+      online_users.forEach((element) => {
+        if (!send) {
+          if (data.to === element.user.number) {
+            send = true;
+
+            socket.broadcast
+              .to(get_id_by_number(element.user.number))
+              .emit("incoming_call", data);
+          }
+        }
+      });
+      if (!send) {
+        persistir_evento(data, data.to);
+      }
+    });
+
+    socket.on("accepted_call", (data) => {
+      console.log(data);
+      socket.broadcast
+        .to(get_id_by_number(data.to))
+        .emit("accepted_call", data);
+    });
   });
 };

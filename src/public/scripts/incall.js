@@ -22,15 +22,66 @@ let iceServers = {
   ],
 };
 
-join_button.addEventListener("click", () => {
-  if (!roomName) {
+function join_video_room(id_room) {
+  console.log("join_video_room");
+  if (!id_room) {
     alert("Please enter a room name");
     return;
   }
-  roomName = "test";
+
+  openVideoApp();
+
+  roomName = id_room;
   socket.emit("join", roomName);
   container_incall.style.zIndex = "5";
-});
+}
+
+function join_audio_room(id_room) {
+  console.log("join_audio_room");
+  if (!id_room) {
+    alert("Please enter a room name");
+    return;
+  }
+
+  openVideoApp();
+
+  roomName = id_room;
+  socket.emit("join", roomName);
+  container_incall.style.zIndex = "5";
+
+  videocamera_flag = false;
+  muteVideo();
+}
+
+function join_call_event(number, type, room) {
+  console.log("Join call event");
+  if (!room) {
+    alert("Please enter a room name");
+    return;
+  }
+
+  const contact_name_incall = document.getElementById("contact_name_incall");
+  contact_name_incall.textContent = get_name_user_by_number(number);
+
+  roomName = room;
+  socket.emit("join", roomName);
+  container_incall.style.zIndex = "5";
+
+  if (type === "audio") {
+    videocamera_flag = true;
+    muteVideo();
+  }
+}
+
+// join_button.addEventListener("click", () => {
+//   if (!roomName) {
+//     alert("Please enter a room name");
+//     return;
+//   }
+//   roomName = "test";
+//   socket.emit("join", roomName);
+//   container_incall.style.zIndex = "5";
+// });
 
 socket.on("created", () => {
   creator = true;
@@ -184,21 +235,11 @@ videocam_button.addEventListener("click", () => {
   videocamera_flag = !videocamera_flag;
 
   if (videocamera_flag) {
-    userStream.getTracks()[1].enabled = false;
-    videocam_button.innerHTML = "";
-    const icon_button = document.createElement("span");
-    icon_button.className = "material-icons";
-    icon_button.textContent = "videocam_off";
-    videocam_button.appendChild(icon_button);
+    muteVideo();
   }
 
   if (!videocamera_flag) {
-    userStream.getTracks()[1].enabled = true;
-    videocam_button.innerHTML = "";
-    const icon_button = document.createElement("span");
-    icon_button.className = "material-icons";
-    icon_button.textContent = "videocam";
-    videocam_button.appendChild(icon_button);
+    enableVideo();
   }
 });
 
@@ -225,6 +266,9 @@ hangup_button.addEventListener("click", () => {
   }
 
   container_incall.style.zIndex = "3";
+
+  videocamera_flag = false;
+  userStream = undefined;
 });
 
 socket.on("leave", (roomName) => {
@@ -263,4 +307,97 @@ function stopwatch() {
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     display.textContent = timer;
   }, 1000);
+}
+
+function muteVideo() {
+  console.log("Muted video");
+
+  if (!userStream) {
+    setTimeout(muteVideo, 100);
+  } else {
+    userStream.getTracks()[1].enabled = false;
+    videocam_button.innerHTML = "";
+    const icon_button = document.createElement("span");
+    icon_button.className = "material-icons";
+    icon_button.textContent = "videocam_off";
+    videocam_button.appendChild(icon_button);
+  }
+}
+
+function enableVideo() {
+  userStream.getTracks()[1].enabled = true;
+  videocam_button.innerHTML = "";
+  const icon_button = document.createElement("span");
+  icon_button.className = "material-icons";
+  icon_button.textContent = "videocam";
+  videocam_button.appendChild(icon_button);
+}
+
+function incoming_call_div(number, type, room) {
+  const incomingCallNtf = document.createElement("div");
+  incomingCallNtf.classList.add("incoming_call_ntf");
+  incomingCallNtf.setAttribute("id", "incoming_call_ntf");
+  incomingCallNtf.setAttribute("from", number);
+  incomingCallNtf.setAttribute("type", type);
+
+  const mainIncomingCall = document.createElement("div");
+  mainIncomingCall.classList.add("main_incoming_call");
+  incomingCallNtf.appendChild(mainIncomingCall);
+
+  const infoIncomingCall = document.createElement("div");
+  infoIncomingCall.classList.add("info_incoming_call");
+  mainIncomingCall.appendChild(infoIncomingCall);
+
+  const contactInfo = document.createElement("div");
+  contactInfo.classList.add("contact_info");
+  infoIncomingCall.appendChild(contactInfo);
+
+  const img = document.createElement("img");
+  img.style.height = "75px";
+  img.src = "../image/user-3296.svg";
+  contactInfo.appendChild(img);
+
+  const p = document.createElement("p");
+  p.textContent = get_name_user_by_number(number);
+  contactInfo.appendChild(p);
+
+  const textInfo = document.createElement("div");
+  textInfo.classList.add("text_info");
+  textInfo.textContent = `Chamada de ${type}`;
+  infoIncomingCall.appendChild(textInfo);
+
+  const containerButtons = document.createElement("div");
+  containerButtons.classList.add("container_buttons");
+  mainIncomingCall.appendChild(containerButtons);
+
+  const acceptCallButton = document.createElement("button");
+  acceptCallButton.classList.add("accept_call_button");
+  acceptCallButton.onclick = () => {
+    accept_call(number, type, room);
+  };
+  containerButtons.appendChild(acceptCallButton);
+
+  const acceptCallButtonSpan = document.createElement("span");
+  acceptCallButtonSpan.classList.add("material-icons");
+  acceptCallButtonSpan.textContent = "call";
+  acceptCallButton.appendChild(acceptCallButtonSpan);
+
+  const rejectCallButton = document.createElement("button");
+  rejectCallButton.classList.add("reject_call_button");
+  rejectCallButton.onclick = () => {
+    reject_call(number, type, room);
+  };
+  containerButtons.appendChild(rejectCallButton);
+
+  const rejectCallButtonSpan = document.createElement("span");
+  rejectCallButtonSpan.classList.add("material-icons");
+  rejectCallButtonSpan.textContent = "call_end";
+  rejectCallButton.appendChild(rejectCallButtonSpan);
+
+  const body = document.getElementsByTagName("body")[0];
+  body.appendChild(incomingCallNtf);
+
+  setTimeout(() => {
+    incomingCallNtf.style.opacity = "1";
+  }, 200);
 }
