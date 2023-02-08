@@ -1,7 +1,7 @@
 import { ajax } from "./ajax.js";
 let token = localStorage.getItem("token");
 let historic = [];
-
+window.call_history = [];
 const side_historic_call = document.getElementById("side_historic_call");
 const input_search_contacts_call = document.getElementById("input_search_call");
 
@@ -25,17 +25,16 @@ get_historic_list(token).then((resposta) => {
   }
 
   const resposta_data = JSON.parse(resposta.data);
-  historic = [...resposta_data.historic];
+  window.call_history = [...resposta_data.historic];
 
   load_historic_list();
 });
 
 function load_historic_list() {
-  //   side_historic_call.innerHTML = "";
-  historic.forEach((e) => {
+  window.call_history.forEach((e) => {
     if (!e) return;
 
-    const { type, duration, number, time } = e;
+    const { type, duration, number, time, accepted, video } = e;
 
     if (!type || !duration || !number || !time) {
       return;
@@ -89,7 +88,7 @@ function load_historic_list() {
     icon_button.textContent = "call";
     number_element.textContent = number;
     text_type.textContent = type;
-    call_info_date.textContent = time;
+    call_info_date.textContent = formatted_time(time);
     call_info_duration.textContent = duration;
     text_button.textContent = "Ligar";
 
@@ -169,6 +168,14 @@ function incoming_call_div(number, type, room) {
   rejectCallButton.classList.add("reject_call_button");
   rejectCallButton.onclick = () => {
     reject_call(number, type, room);
+    add_call_to_local_history(
+      "Entrada",
+      "00:00:00",
+      number,
+      new Date(),
+      false,
+      type
+    );
   };
   containerButtons.appendChild(rejectCallButton);
 
@@ -222,12 +229,11 @@ function reject_call(number, type, room) {
 }
 
 socket.on("incoming_call", (data) => {
+  console.log(data);
   incoming_call_div(data.from, data.type, data.room);
 });
 
 socket.on("accepted_call", (data) => {
-  console.log(data);
-
   const contact_name_incall = document.getElementById("contact_name_incall");
   contact_name_incall.textContent = get_name_user_by_number(data.from);
 
@@ -235,3 +241,139 @@ socket.on("accepted_call", (data) => {
 
   if (data.type === "audio") join_audio_room(data.room);
 });
+
+function add_call_to_local_history(
+  type,
+  duration,
+  number,
+  time,
+  accepted,
+  video
+) {
+  if (video === "video") video = true;
+  else if (video === "audio") video = false;
+  else alert("erro : 000");
+
+  console.log(window.call_history);
+
+  const data = {
+    type,
+    duration,
+    number,
+    time,
+    accepted,
+    video,
+  };
+
+  // /calls/historic
+  store_historic_db(data).then((resposta) => {
+    console.log(resposta);
+    if (resposta.code !== 201) {
+      alert("Houve um erro");
+    }
+
+    const resposta_data = JSON.parse(resposta.data);
+
+    console.log(resposta_data);
+    // historic = [...resposta_data.historic];
+    window.call_history = [...resposta_data.historic];
+
+    load_historic_list();
+    console.log(window.call_history);
+  });
+}
+
+function store_historic_db(data) {
+  return new Promise((resolve, reject) => {
+    ajax({
+      url: "/calls/historic",
+      metodo: "post",
+      headers: [{ header: "Authorization", value: `Bearer ${token}` }],
+      body: data,
+      sucesso: resolve,
+      erro: reject,
+    });
+  });
+}
+
+// !! FUNÇÕES DAS DATAS
+// ? =================================================================================
+
+// * DD/MM/AA
+function get_current_date() {
+  let data = new Date();
+  let dataFormatada = data.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+
+  return dataFormatada;
+}
+
+function get_current_year() {
+  let data = new Date();
+
+  let year = data.toLocaleDateString("pt-BR", {
+    year: "2-digit",
+  });
+
+  return year;
+}
+
+function get_current_time() {
+  let data = new Date();
+  let horas = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return horas;
+}
+
+function get_horas(time) {
+  let data = new Date(time);
+  let horas = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return horas;
+}
+
+function formatted_time(time) {
+  let newTime = new Date(time);
+
+  //
+  let time_date = newTime.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+
+  let time_year = newTime.toLocaleDateString("pt-BR", {
+    year: "2-digit",
+  });
+
+  let time_only_time = newTime.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  // SE FOR A MESMA DATA DE HOJE, RETORNA A HORA APENAS.
+  if (time_date === get_current_date()) {
+    return time_only_time;
+  }
+
+  // SE FOR ESTE MESMO ANO, RETORNA A DATA SEM O ANO.
+  if (time_year === get_current_year()) {
+    let without_year = newTime.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+
+    return without_year;
+  }
+
+  return time_date;
+}

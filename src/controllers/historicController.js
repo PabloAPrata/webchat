@@ -23,7 +23,26 @@ const HistoricController = {
   // Criar histórico ou encontrar um.
   async storeHistoric(request, response) {
     try {
-      let { type, duration, number, time } = request.body;
+      let { type, duration, number, time, accepted, video } = request.body;
+
+      if (!type) {
+        return response.status(422).json({ msg: "O tipo é obrigatório" });
+      }
+      if (!duration) {
+        return response.status(422).json({ msg: "A duração é obrigatória" });
+      }
+      if (!number) {
+        return response.status(422).json({ msg: "O número é obrigatório" });
+      }
+      if (!time) {
+        return response.status(422).json({ msg: "O tempo é obrigatório" });
+      }
+
+      if (video === undefined) {
+        return response
+          .status(422)
+          .json({ msg: "É necessário informar se houve video na ligação." });
+      }
 
       const myUser = await identifyUser(request);
       console.log(
@@ -36,6 +55,8 @@ const HistoricController = {
         duration,
         number,
         time,
+        accepted,
+        video,
       };
 
       try {
