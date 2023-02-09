@@ -155,6 +155,7 @@ socket.on("ready", () => {
     })
     .catch((error) => {
       // trate o erro aqui, se necessário
+      console.log(error);
     });
 });
 
