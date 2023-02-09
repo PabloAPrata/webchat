@@ -1,4 +1,4 @@
-let roomName = "1000";
+let roomName = "test";
 const user_video = document.getElementById("user_video");
 const peer_video = document.getElementById("peer_video");
 const join_button = document.getElementById("developer_button");
@@ -127,36 +127,28 @@ socket.on("full", () => {
 });
 
 socket.on("ready", () => {
-  getCameraAccess()
-    .then((stream) => {
-      userStream = stream;
+  if (creator) {
+    rtcPeerConnection = new RTCPeerConnection(iceServers);
+    rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
+    rtcPeerConnection.ontrack = OnTrackFunction;
 
-      localStorage.setItem("incall", roomName);
+    // userStream.getTracks().forEach((track) => {
+    //   rtcPeerConnection.addTrack(track, userStream);
+    // });
+    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
 
-      if (creator) {
-        rtcPeerConnection = new RTCPeerConnection(iceServers);
-        rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
-        rtcPeerConnection.ontrack = OnTrackFunction;
+    rtcPeerConnection
+      .createOffer()
+      .then((offer) => {
+        rtcPeerConnection.setLocalDescription(offer);
+        socket.emit("offer", offer, roomName);
+      })
 
-        rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-        rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
-
-        rtcPeerConnection
-          .createOffer()
-          .then((offer) => {
-            rtcPeerConnection.setLocalDescription(offer);
-            socket.emit("offer", offer, roomName);
-          })
-
-          .catch((error) => {
-            console.log(error);
-          });
-      }
-    })
-    .catch((error) => {
-      // trate o erro aqui, se necessário
-      console.log(error);
-    });
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 });
 
 socket.on("candidate", (candidate) => {
@@ -328,19 +320,38 @@ function muteVideo() {
   if (!userStream) {
     setTimeout(muteVideo, 100);
   } else {
-    userStream.getTracks()[1].enabled = false;
+    // userStream.getTracks()[1].enabled = false;
+    userStream.getTracks().forEach(function (track) {
+      track.stop();
+    });
+
     videocam_button.innerHTML = "";
     const icon_button = document.createElement("span");
     icon_button.className = "material-icons";
     icon_button.textContent = "videocam_off";
     videocam_button.appendChild(icon_button);
-    user_video.style.display = "none";
+    // user_video.style.display = "none";
   }
 }
 
 function enableVideo() {
   console.log("enable video");
-  userStream.getTracks()[1].enabled = true;
+  // userStream.getTracks()[1].enabled = true;
+  getCameraAccess()
+    .then((stream) => {
+      userStream = stream;
+      user_video.style.width = "100%";
+      user_video.style.height = "100%";
+      user_video.srcObject = stream;
+      user_video.onloadedmetadata = function (e) {
+        user_video.play();
+      };
+    })
+    .catch((error) => {
+      // trate o erro aqui, se necessário
+      alert(error);
+    });
+
   videocam_button.innerHTML = "";
   const icon_button = document.createElement("span");
   icon_button.className = "material-icons";
