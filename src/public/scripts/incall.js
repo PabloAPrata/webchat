@@ -1,4 +1,4 @@
-let roomName = "test";
+let roomName = "1000";
 const user_video = document.getElementById("user_video");
 const peer_video = document.getElementById("peer_video");
 const join_button = document.getElementById("developer_button");
@@ -73,22 +73,21 @@ function join_call_event(number, type, room) {
   }
 }
 
-// join_button.addEventListener("click", () => {
-//   if (!roomName) {
-//     alert("Please enter a room name");
-//     return;
-//   }
-//   roomName = "test";
-//   socket.emit("join", roomName);
-//   container_incall.style.zIndex = "5";
-// });
+async function getCameraAccess() {
+  return navigator.mediaDevices
+    .getUserMedia({ video: true, audio: true })
+    .catch((error) => {
+      alert("Não foi possível acessar a câmera. Erro: " + error.message);
+      return Promise.reject(error);
+    });
+}
 
 socket.on("created", () => {
   creator = true;
+  //-------------------------------------------------------------------
 
-  navigator.mediaDevices
-    .getUserMedia({ video: true, audio: true })
-    .then(function (stream) {
+  getCameraAccess()
+    .then((stream) => {
       userStream = stream;
       user_video.style.width = "100%";
       user_video.style.height = "100%";
@@ -97,17 +96,17 @@ socket.on("created", () => {
         user_video.play();
       };
     })
-    .catch(function (err) {
-      console.log("An error occurred: " + err);
+    .catch((error) => {
+      // trate o erro aqui, se necessário
+      alert(error);
     });
 });
 
 socket.on("joined", () => {
   creator = false;
 
-  navigator.mediaDevices
-    .getUserMedia({ audio: true, video: true })
-    .then(function (stream) {
+  getCameraAccess()
+    .then((stream) => {
       userStream = stream;
       user_video.style.width = "100%";
       user_video.style.height = "100%";
@@ -117,9 +116,9 @@ socket.on("joined", () => {
       };
       socket.emit("ready", roomName);
     })
-    .catch(function (err) {
-      console.log("An error occurred: " + err);
-      alert("Couldn't Access User Media");
+    .catch((error) => {
+      // trate o erro aqui, se necessário
+      alert(error);
     });
 });
 
@@ -128,28 +127,35 @@ socket.on("full", () => {
 });
 
 socket.on("ready", () => {
-  if (creator) {
-    rtcPeerConnection = new RTCPeerConnection(iceServers);
-    rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
-    rtcPeerConnection.ontrack = OnTrackFunction;
+  getCameraAccess()
+    .then((stream) => {
+      userStream = stream;
 
-    // userStream.getTracks().forEach((track) => {
-    //   rtcPeerConnection.addTrack(track, userStream);
-    // });
-    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+      localStorage.setItem("incall", roomName);
 
-    rtcPeerConnection
-      .createOffer()
-      .then((offer) => {
-        rtcPeerConnection.setLocalDescription(offer);
-        socket.emit("offer", offer, roomName);
-      })
+      if (creator) {
+        rtcPeerConnection = new RTCPeerConnection(iceServers);
+        rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
+        rtcPeerConnection.ontrack = OnTrackFunction;
 
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+        rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+        rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+
+        rtcPeerConnection
+          .createOffer()
+          .then((offer) => {
+            rtcPeerConnection.setLocalDescription(offer);
+            socket.emit("offer", offer, roomName);
+          })
+
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    })
+    .catch((error) => {
+      // trate o erro aqui, se necessário
+    });
 });
 
 socket.on("candidate", (candidate) => {
@@ -272,6 +278,7 @@ hangup_button.addEventListener("click", () => {
 });
 
 socket.on("leave", (roomName) => {
+  console.log("leave", roomName);
   creator = true; // Agora a pessoa se torna a dona da sala pois só restou ela.
   if (rtcPeerConnection) {
     rtcPeerConnection.ontrack = null;
@@ -292,7 +299,7 @@ function stopwatch() {
   let minutes = 0;
   let seconds = 0;
 
-  setInterval(() => {
+  let interval = setInterval(() => {
     seconds++;
     if (seconds === 60) {
       minutes++;
@@ -307,6 +314,11 @@ function stopwatch() {
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     display.textContent = timer;
   }, 1000);
+
+  hangup_button.addEventListener("click", () => {
+    display.innerHTML = "00:00:00";
+    clearInterval(interval);
+  });
 }
 
 function muteVideo() {
@@ -321,83 +333,86 @@ function muteVideo() {
     icon_button.className = "material-icons";
     icon_button.textContent = "videocam_off";
     videocam_button.appendChild(icon_button);
+    user_video.style.display = "none";
   }
 }
 
 function enableVideo() {
+  console.log("enable video");
   userStream.getTracks()[1].enabled = true;
   videocam_button.innerHTML = "";
   const icon_button = document.createElement("span");
   icon_button.className = "material-icons";
   icon_button.textContent = "videocam";
   videocam_button.appendChild(icon_button);
+  user_video.style.display = "block";
 }
 
-function incoming_call_div(number, type, room) {
-  const incomingCallNtf = document.createElement("div");
-  incomingCallNtf.classList.add("incoming_call_ntf");
-  incomingCallNtf.setAttribute("id", "incoming_call_ntf");
-  incomingCallNtf.setAttribute("from", number);
-  incomingCallNtf.setAttribute("type", type);
+// function incoming_call_div(number, type, room) {
+//   const incomingCallNtf = document.createElement("div");
+//   incomingCallNtf.classList.add("incoming_call_ntf");
+//   incomingCallNtf.setAttribute("id", "incoming_call_ntf");
+//   incomingCallNtf.setAttribute("from", number);
+//   incomingCallNtf.setAttribute("type", type);
 
-  const mainIncomingCall = document.createElement("div");
-  mainIncomingCall.classList.add("main_incoming_call");
-  incomingCallNtf.appendChild(mainIncomingCall);
+//   const mainIncomingCall = document.createElement("div");
+//   mainIncomingCall.classList.add("main_incoming_call");
+//   incomingCallNtf.appendChild(mainIncomingCall);
 
-  const infoIncomingCall = document.createElement("div");
-  infoIncomingCall.classList.add("info_incoming_call");
-  mainIncomingCall.appendChild(infoIncomingCall);
+//   const infoIncomingCall = document.createElement("div");
+//   infoIncomingCall.classList.add("info_incoming_call");
+//   mainIncomingCall.appendChild(infoIncomingCall);
 
-  const contactInfo = document.createElement("div");
-  contactInfo.classList.add("contact_info");
-  infoIncomingCall.appendChild(contactInfo);
+//   const contactInfo = document.createElement("div");
+//   contactInfo.classList.add("contact_info");
+//   infoIncomingCall.appendChild(contactInfo);
 
-  const img = document.createElement("img");
-  img.style.height = "75px";
-  img.src = "../image/user-3296.svg";
-  contactInfo.appendChild(img);
+//   const img = document.createElement("img");
+//   img.style.height = "75px";
+//   img.src = "../image/user-3296.svg";
+//   contactInfo.appendChild(img);
 
-  const p = document.createElement("p");
-  p.textContent = get_name_user_by_number(number);
-  contactInfo.appendChild(p);
+//   const p = document.createElement("p");
+//   p.textContent = get_name_user_by_number(number);
+//   contactInfo.appendChild(p);
 
-  const textInfo = document.createElement("div");
-  textInfo.classList.add("text_info");
-  textInfo.textContent = `Chamada de ${type}`;
-  infoIncomingCall.appendChild(textInfo);
+//   const textInfo = document.createElement("div");
+//   textInfo.classList.add("text_info");
+//   textInfo.textContent = `Chamada de ${type}`;
+//   infoIncomingCall.appendChild(textInfo);
 
-  const containerButtons = document.createElement("div");
-  containerButtons.classList.add("container_buttons");
-  mainIncomingCall.appendChild(containerButtons);
+//   const containerButtons = document.createElement("div");
+//   containerButtons.classList.add("container_buttons");
+//   mainIncomingCall.appendChild(containerButtons);
 
-  const acceptCallButton = document.createElement("button");
-  acceptCallButton.classList.add("accept_call_button");
-  acceptCallButton.onclick = () => {
-    accept_call(number, type, room);
-  };
-  containerButtons.appendChild(acceptCallButton);
+//   const acceptCallButton = document.createElement("button");
+//   acceptCallButton.classList.add("accept_call_button");
+//   acceptCallButton.onclick = () => {
+//     accept_call(number, type, room);
+//   };
+//   containerButtons.appendChild(acceptCallButton);
 
-  const acceptCallButtonSpan = document.createElement("span");
-  acceptCallButtonSpan.classList.add("material-icons");
-  acceptCallButtonSpan.textContent = "call";
-  acceptCallButton.appendChild(acceptCallButtonSpan);
+//   const acceptCallButtonSpan = document.createElement("span");
+//   acceptCallButtonSpan.classList.add("material-icons");
+//   acceptCallButtonSpan.textContent = "call";
+//   acceptCallButton.appendChild(acceptCallButtonSpan);
 
-  const rejectCallButton = document.createElement("button");
-  rejectCallButton.classList.add("reject_call_button");
-  rejectCallButton.onclick = () => {
-    reject_call(number, type, room);
-  };
-  containerButtons.appendChild(rejectCallButton);
+//   const rejectCallButton = document.createElement("button");
+//   rejectCallButton.classList.add("reject_call_button");
+//   rejectCallButton.onclick = () => {
+//     reject_call(number, type, room);
+//   };
+//   containerButtons.appendChild(rejectCallButton);
 
-  const rejectCallButtonSpan = document.createElement("span");
-  rejectCallButtonSpan.classList.add("material-icons");
-  rejectCallButtonSpan.textContent = "call_end";
-  rejectCallButton.appendChild(rejectCallButtonSpan);
+//   const rejectCallButtonSpan = document.createElement("span");
+//   rejectCallButtonSpan.classList.add("material-icons");
+//   rejectCallButtonSpan.textContent = "call_end";
+//   rejectCallButton.appendChild(rejectCallButtonSpan);
 
-  const body = document.getElementsByTagName("body")[0];
-  body.appendChild(incomingCallNtf);
+//   const body = document.getElementsByTagName("body")[0];
+//   body.appendChild(incomingCallNtf);
 
-  setTimeout(() => {
-    incomingCallNtf.style.opacity = "1";
-  }, 200);
-}
+//   setTimeout(() => {
+//     incomingCallNtf.style.opacity = "1";
+//   }, 200);
+// }

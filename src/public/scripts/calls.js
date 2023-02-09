@@ -110,7 +110,7 @@ function load_historic_list() {
     historic_li.appendChild(buttons_historico);
 
     number_element.style.marginBottom = "5px";
-
+    side_historic_call.innerHTML = "";
     side_historic_call.appendChild(historic_li);
   });
 }

@@ -59,7 +59,6 @@ module.exports = () => {
     }
 
     // =================================================================
-    console.log(`Conection established with ${socket.id}`);
 
     socket.on("register", (user) => {
       user.socket_id = socket.id;
@@ -105,45 +104,37 @@ module.exports = () => {
     // FUNÇÕES WEBSOCKET DO WEBRTC
     socket.on("join", (roomName) => {
       let rooms = io.sockets.adapter.rooms;
-      console.log("🚀 ~ file: socket.js:108 ~ socket.on ~ rooms", rooms);
       let room = rooms.get(roomName);
 
       if (room == undefined) {
         socket.join(roomName);
         socket.emit("created");
-        console.log("Sala criada");
       } else if (room.size == 1) {
         socket.join(roomName);
-        console.log("Entrou na sala");
         socket.emit("joined");
       } else {
-        console.log("A sala está cheia");
         socket.emit("full");
       }
     });
 
     socket.on("ready", (roomName) => {
-      console.log("🚀 ~ file: socket.js:128 ~ socket.on ~ ready");
       socket.broadcast.to(roomName).emit("ready");
     });
 
     socket.on("candidate", (candidate, roomName) => {
-      console.log("🚀 ~ file: socket.js:135 ~ socket.on ~ candidate");
-
       socket.broadcast.to(roomName).emit("candidate", candidate);
     });
 
     socket.on("offer", (offer, roomName) => {
-      console.log("🚀 ~ file: socket.js:140 ~ socket.on ~ offer");
       socket.broadcast.to(roomName).emit("offer", offer);
     });
 
     socket.on("answer", (answer, roomName) => {
-      console.log("🚀 ~ file: socket.js:146 ~ socket.on ~ answer");
       socket.broadcast.to(roomName).emit("answer", answer);
     });
 
     socket.on("leave", (roomName) => {
+      console.log("leave", roomName);
       socket.leave(roomName);
       socket.broadcast.to(roomName).emit("leave", roomName);
     });
@@ -167,7 +158,6 @@ module.exports = () => {
     });
 
     socket.on("accepted_call", (data) => {
-      console.log(data);
       socket.broadcast
         .to(get_id_by_number(data.to))
         .emit("accepted_call", data);
