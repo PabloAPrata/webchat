@@ -31,14 +31,16 @@ get_historic_list(token).then((resposta) => {
 });
 
 function load_historic_list() {
+  side_historic_call.innerHTML = "";
   window.call_history.forEach((e) => {
-    if (!e) return;
+    // if (!e) return;
 
     const { type, duration, number, time, accepted, video } = e;
 
-    if (!type || !duration || !number || !time) {
-      return;
-    }
+    // if (!type || !duration || !number || !time) {
+    //   return;
+    // }
+    console.log(e);
 
     const historic_li = document.createElement("li");
     const informations_historico = document.createElement("div");
@@ -110,7 +112,7 @@ function load_historic_list() {
     historic_li.appendChild(buttons_historico);
 
     number_element.style.marginBottom = "5px";
-    side_historic_call.innerHTML = "";
+
     side_historic_call.appendChild(historic_li);
   });
 }
@@ -234,9 +236,10 @@ socket.on("incoming_call", (data) => {
 });
 
 socket.on("accepted_call", (data) => {
+  const name = get_name_user_by_number(data.from);
   const contact_name_incall = document.getElementById("contact_name_incall");
-  contact_name_incall.textContent = get_name_user_by_number(data.from);
-
+  contact_name_incall.textContent = name;
+  peer_video.setAttribute("metadata", data.from);
   if (data.type === "video") join_video_room(data.room);
 
   if (data.type === "audio") join_audio_room(data.room);

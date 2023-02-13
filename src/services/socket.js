@@ -162,5 +162,9 @@ module.exports = () => {
         .to(get_id_by_number(data.to))
         .emit("accepted_call", data);
     });
+
+    socket.on("video", (data) => {
+      socket.broadcast.to(data.roomName).emit("video", data);
+    });
   });
 };

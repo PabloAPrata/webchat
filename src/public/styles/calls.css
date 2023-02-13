@@ -208,18 +208,33 @@
 }
 
 .container_myCam {
+  border-radius: 10px;
   position: absolute;
-  bottom: 0px;
-  right: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  bottom: 2px;
+  right: 2px;
   width: 15vw;
   height: 15vh;
-  border: solid white 1px;
+  border: solid #989898 1px;
   z-index: 4;
-  background-color: black;
+  background: url(../image/endless-constellation.svg);
+  box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px,
+    rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+}
+
+.container_myCam img {
+  height: 40%;
+  background: white;
+  border-radius: 100px;
 }
 
 .container_myCam video {
   object-fit: cover;
+  position: absolute;
+  border-radius: 10px;
 }
 
 .container_header_incall {
@@ -440,4 +455,34 @@
   background: red;
   border-radius: 100%;
   width: 40px;
+}
+
+.person_container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: url(../image/endless-constellation.svg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.person_container img {
+  height: 22vh;
+  background: white;
+  border-radius: 100px;
+  box-shadow: rgb(0 0 0 / 44%) 0px 10px 16px;
+  margin-bottom: 2rem;
+}
+
+.person_container .name_contact {
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.person_container video {
+  position: absolute;
+  top: 0;
+  left: 0;
 }

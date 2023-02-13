@@ -60,8 +60,10 @@ function join_call_event(number, type, room) {
     return;
   }
 
+  const name = get_name_user_by_number(number);
   const contact_name_incall = document.getElementById("contact_name_incall");
-  contact_name_incall.textContent = get_name_user_by_number(number);
+  contact_name_incall.textContent = name;
+  peer_video.setAttribute("metadata", number);
 
   roomName = room;
   socket.emit("join", roomName);
@@ -183,6 +185,30 @@ socket.on("offer", (offer) => {
 
 socket.on("answer", (answer) => {
   rtcPeerConnection.setRemoteDescription(answer);
+});
+
+socket.on("video", (data) => {
+  if (data.type === "mute") {
+    const video = document.querySelectorAll("[metadata]");
+    video.forEach((e) => {
+      const number = e.getAttribute("metadata");
+
+      if (data.from === number) {
+        e.style.display = "none";
+      }
+    });
+  }
+
+  if (data.type === "unmute") {
+    const video = document.querySelectorAll("[metadata]");
+    video.forEach((e) => {
+      const number = e.getAttribute("metadata");
+
+      if (data.from === number) {
+        e.style.display = "block";
+      }
+    });
+  }
 });
 
 function OnIceCandidateFunction(event) {
@@ -315,42 +341,29 @@ function stopwatch() {
 }
 
 function muteVideo() {
-  console.log("Muted video");
-
   if (!userStream) {
     setTimeout(muteVideo, 100);
   } else {
-    // userStream.getTracks()[1].enabled = false;
-    userStream.getTracks().forEach(function (track) {
-      track.stop();
-    });
+    userStream.getTracks()[1].enabled = false;
 
     videocam_button.innerHTML = "";
     const icon_button = document.createElement("span");
     icon_button.className = "material-icons";
     icon_button.textContent = "videocam_off";
     videocam_button.appendChild(icon_button);
-    // user_video.style.display = "none";
+    user_video.style.display = "none";
+    console.log(roomName);
+    const data = {
+      roomName: roomName,
+      type: "mute",
+      from: window.account_info.number,
+    };
+    socket.emit("video", data);
   }
 }
 
 function enableVideo() {
-  console.log("enable video");
-  // userStream.getTracks()[1].enabled = true;
-  getCameraAccess()
-    .then((stream) => {
-      userStream = stream;
-      user_video.style.width = "100%";
-      user_video.style.height = "100%";
-      user_video.srcObject = stream;
-      user_video.onloadedmetadata = function (e) {
-        user_video.play();
-      };
-    })
-    .catch((error) => {
-      // trate o erro aqui, se necessário
-      alert(error);
-    });
+  userStream.getTracks()[1].enabled = true;
 
   videocam_button.innerHTML = "";
   const icon_button = document.createElement("span");
@@ -358,73 +371,10 @@ function enableVideo() {
   icon_button.textContent = "videocam";
   videocam_button.appendChild(icon_button);
   user_video.style.display = "block";
+  const data = {
+    roomName: roomName,
+    type: "unmute",
+    from: window.account_info.number,
+  };
+  socket.emit("video", data);
 }
-
-// function incoming_call_div(number, type, room) {
-//   const incomingCallNtf = document.createElement("div");
-//   incomingCallNtf.classList.add("incoming_call_ntf");
-//   incomingCallNtf.setAttribute("id", "incoming_call_ntf");
-//   incomingCallNtf.setAttribute("from", number);
-//   incomingCallNtf.setAttribute("type", type);
-
-//   const mainIncomingCall = document.createElement("div");
-//   mainIncomingCall.classList.add("main_incoming_call");
-//   incomingCallNtf.appendChild(mainIncomingCall);
-
-//   const infoIncomingCall = document.createElement("div");
-//   infoIncomingCall.classList.add("info_incoming_call");
-//   mainIncomingCall.appendChild(infoIncomingCall);
-
-//   const contactInfo = document.createElement("div");
-//   contactInfo.classList.add("contact_info");
-//   infoIncomingCall.appendChild(contactInfo);
-
-//   const img = document.createElement("img");
-//   img.style.height = "75px";
-//   img.src = "../image/user-3296.svg";
-//   contactInfo.appendChild(img);
-
-//   const p = document.createElement("p");
-//   p.textContent = get_name_user_by_number(number);
-//   contactInfo.appendChild(p);
-
-//   const textInfo = document.createElement("div");
-//   textInfo.classList.add("text_info");
-//   textInfo.textContent = `Chamada de ${type}`;
-//   infoIncomingCall.appendChild(textInfo);
-
-//   const containerButtons = document.createElement("div");
-//   containerButtons.classList.add("container_buttons");
-//   mainIncomingCall.appendChild(containerButtons);
-
-//   const acceptCallButton = document.createElement("button");
-//   acceptCallButton.classList.add("accept_call_button");
-//   acceptCallButton.onclick = () => {
-//     accept_call(number, type, room);
-//   };
-//   containerButtons.appendChild(acceptCallButton);
-
-//   const acceptCallButtonSpan = document.createElement("span");
-//   acceptCallButtonSpan.classList.add("material-icons");
-//   acceptCallButtonSpan.textContent = "call";
-//   acceptCallButton.appendChild(acceptCallButtonSpan);
-
-//   const rejectCallButton = document.createElement("button");
-//   rejectCallButton.classList.add("reject_call_button");
-//   rejectCallButton.onclick = () => {
-//     reject_call(number, type, room);
-//   };
-//   containerButtons.appendChild(rejectCallButton);
-
-//   const rejectCallButtonSpan = document.createElement("span");
-//   rejectCallButtonSpan.classList.add("material-icons");
-//   rejectCallButtonSpan.textContent = "call_end";
-//   rejectCallButton.appendChild(rejectCallButtonSpan);
-
-//   const body = document.getElementsByTagName("body")[0];
-//   body.appendChild(incomingCallNtf);
-
-//   setTimeout(() => {
-//     incomingCallNtf.style.opacity = "1";
-//   }, 200);
-// }
