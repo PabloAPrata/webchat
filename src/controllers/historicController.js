@@ -45,10 +45,6 @@ const HistoricController = {
       }
 
       const myUser = await identifyUser(request);
-      console.log(
-        "🚀 ~ file: historicController.js:27 ~ storeHistoric ~ myUser",
-        myUser
-      );
 
       const data = {
         type,

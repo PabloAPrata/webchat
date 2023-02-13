@@ -60,6 +60,8 @@
   margin: 0;
   padding: 0;
   position: relative;
+  height: calc(100% - 105px);
+  overflow-y: auto;
 }
 
 .list_historico_call li {
@@ -246,9 +248,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff66;
+  background-color: #d0d0d066;
   z-index: 5;
   pointer-events: none;
+  box-shadow: rgb(0 0 0 / 15%) 1.95px 1.95px 2.6px;
 }
 
 .stopwatch_incall {

@@ -1,6 +1,6 @@
 import { ajax } from "./ajax.js";
 let token = localStorage.getItem("token");
-let historic = [];
+
 window.call_history = [];
 const side_historic_call = document.getElementById("side_historic_call");
 const input_search_contacts_call = document.getElementById("input_search_call");
@@ -19,16 +19,23 @@ async function get_historic_list(token) {
   });
 }
 
-get_historic_list(token).then((resposta) => {
-  if (resposta.code !== 200) {
-    alert("Houve um erro");
-  }
+get_historic_list(token)
+  .then((resposta) => {
+    if (resposta.code !== 200) {
+      alert("Houve um erro");
+    }
 
-  const resposta_data = JSON.parse(resposta.data);
-  window.call_history = [...resposta_data.historic];
+    const resposta_data = JSON.parse(resposta.data);
+    window.call_history = [...resposta_data.historic];
 
-  load_historic_list();
-});
+    load_historic_list();
+  })
+  .catch((error) => {
+    if (error.code === 401) {
+      window.location.href = "/";
+    }
+    console.error(error);
+  });
 
 function load_historic_list() {
   side_historic_call.innerHTML = "";
@@ -216,6 +223,12 @@ function accept_call(number, type, room) {
     room: room,
   };
 
+  window.current_call.type = "entrada";
+  window.current_call.number = account_info.number;
+  window.current_call.roomName = room;
+  window.current_call.date = new Date();
+  window.current_call.video = false;
+
   socket.emit("accepted_call", data);
 }
 
@@ -269,21 +282,27 @@ function add_call_to_local_history(
   };
 
   // /calls/historic
-  store_historic_db(data).then((resposta) => {
-    console.log(resposta);
-    if (resposta.code !== 201) {
-      alert("Houve um erro");
-    }
+  store_historic_db(data)
+    .then((resposta) => {
+      console.log(resposta);
+      if (resposta.code !== 201) {
+        alert("Houve um erro");
+      }
 
-    const resposta_data = JSON.parse(resposta.data);
+      const resposta_data = JSON.parse(resposta.data);
 
-    console.log(resposta_data);
-    // historic = [...resposta_data.historic];
-    window.call_history = [...resposta_data.historic];
+      console.log(resposta_data);
 
-    load_historic_list();
-    console.log(window.call_history);
-  });
+      window.call_history = [...resposta_data.historic];
+
+      load_historic_list();
+    })
+    .catch((error) => {
+      if (error.code === 401) {
+        window.location.href = "/";
+      }
+      console.error(error);
+    });
 }
 
 function store_historic_db(data) {

@@ -21,7 +21,7 @@ module.exports = {
       next();
     } catch (error) {
       response
-        .status(400)
+        .status(401)
         .json({ msg: "Você precisa se autenticar primeiro!" });
     }
   },

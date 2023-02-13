@@ -6,6 +6,16 @@ const mic_button = document.getElementById("mic_button");
 const videocam_button = document.getElementById("videocam_button");
 const hangup_button = document.getElementById("hangup_button");
 const container_incall = document.getElementById("container_incall");
+
+window.current_call = {
+  type: null,
+  duration: null,
+  number: null,
+  video: null,
+  date: null,
+  roomName: null,
+};
+
 let timer = 0;
 
 let mute_flag = false;
@@ -332,6 +342,7 @@ function stopwatch() {
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     display.textContent = timer;
+    window.current_call.time = timer;
   }, 1000);
 
   hangup_button.addEventListener("click", () => {

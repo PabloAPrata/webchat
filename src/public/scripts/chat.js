@@ -42,7 +42,7 @@ const sound_new_message = document.getElementById("sound_new_message");
 const ul_chat = document.getElementById("container-list");
 const chat_container = document.getElementById("chat-container");
 const conversation_body = document.getElementById("conversation");
-const username_div = document.getElementById("profile_name");
+
 const new_chat = document.getElementById("new-chat");
 const section_contacts = document.getElementById("section-contacts");
 const side_arrow_back = document.getElementById("side_arrow_back");
@@ -285,58 +285,65 @@ button_create_group.addEventListener("click", function () {
   // Coloca o meu número
   array_members.push(account_info.number);
 
-  createChatAPI(array_members, name).then((resultado) => {
-    // Guarda o id do chat criado:
-    const newID = JSON.parse(resultado.data).id;
+  createChatAPI(array_members, name)
+    .then((resultado) => {
+      // Guarda o id do chat criado:
+      const newID = JSON.parse(resultado.data).id;
 
-    // Atualiza a lista de chats no cache:
-    get_chat_list(token).then((resposta) => {
-      const resposta_data = JSON.parse(resposta.data);
+      // Atualiza a lista de chats no cache:
+      get_chat_list(token).then((resposta) => {
+        const resposta_data = JSON.parse(resposta.data);
 
-      chats_list = [...resposta_data.chatsList];
+        chats_list = [...resposta_data.chatsList];
 
-      load_chats_list();
+        load_chats_list();
 
-      load_header_chat(newID);
+        load_header_chat(newID);
 
-      load_messages_chat(cached_messages, newID);
+        load_messages_chat(cached_messages, newID);
 
-      load_input_chat(newID);
+        load_input_chat(newID);
 
-      chat_selected_color(newID);
+        chat_selected_color(newID);
 
-      close_side_contacts();
+        close_side_contacts();
 
-      chat_selected = newID;
+        chat_selected = newID;
 
-      put_status_contacts(online_user_list);
+        put_status_contacts(online_user_list);
 
+        new_group_selected.innerHTML = "";
+
+        section_new_group.style.transform = null;
+      });
+
+      const dataGroup = {
+        group: true,
+        lmessage: {
+          sender_name: account_info.name,
+          sender_number: account_info.number,
+          text: "Adicionou você a este grupo!",
+          time: new Date(),
+        },
+        members: array_members,
+        name: name,
+        _id: newID,
+      };
+      // Emite os dados do grupo para os participantes
+      socket.emit("group_created", dataGroup);
+
+      // Apaga as divs alteradas na criação do grupo e retorna tudo
+      // para sua forma original
       new_group_selected.innerHTML = "";
-
-      section_new_group.style.transform = null;
+      group_name_input.value = "";
+      input_search_newG.value = "";
+    })
+    .catch((error) => {
+      if (error.code === 401) {
+        window.location.href = "/";
+      }
+      console.error(error);
     });
-
-    const dataGroup = {
-      group: true,
-      lmessage: {
-        sender_name: account_info.name,
-        sender_number: account_info.number,
-        text: "Adicionou você a este grupo!",
-        time: new Date(),
-      },
-      members: array_members,
-      name: name,
-      _id: newID,
-    };
-    // Emite os dados do grupo para os participantes
-    socket.emit("group_created", dataGroup);
-
-    // Apaga as divs alteradas na criação do grupo e retorna tudo
-    // para sua forma original
-    new_group_selected.innerHTML = "";
-    group_name_input.value = "";
-    input_search_newG.value = "";
-  });
 });
 
 // Verifica se o navegador suporta o evento visibilitychange
@@ -424,32 +431,39 @@ function add_contact_api() {
       if (resposta.code === 201 || resposta.code === 200) {
         const msg = JSON.parse(resposta.data).msg;
 
-        get_contacts_list(token).then((resposta) => {
-          if (resposta.code === 200) {
-            const resposta_data = JSON.parse(resposta.data);
+        get_contacts_list(token)
+          .then((resposta) => {
+            if (resposta.code === 200) {
+              const resposta_data = JSON.parse(resposta.data);
 
-            contacts_list = [];
-            contacts_list = [...resposta_data.contacts];
+              contacts_list = [];
+              contacts_list = [...resposta_data.contacts];
 
-            load_contacts_list();
-            put_status_contacts(online_user_list);
-          } else {
-            alert(resposta);
-            console.log(resposta);
-          }
+              load_contacts_list();
+              put_status_contacts(online_user_list);
+            } else {
+              alert(resposta);
+              console.log(resposta);
+            }
 
-          get_chat_list(token).then((resposta) => {
-            // Se não possuit chat
-            if (resposta.code === 204) return;
+            get_chat_list(token).then((resposta) => {
+              // Se não possuit chat
+              if (resposta.code === 204) return;
 
-            const resposta_data = JSON.parse(resposta.data);
-            chats_list = [...resposta_data.chatsList];
+              const resposta_data = JSON.parse(resposta.data);
+              chats_list = [...resposta_data.chatsList];
 
-            load_chats_list();
+              load_chats_list();
 
-            put_status_contacts(online_user_list);
+              put_status_contacts(online_user_list);
+            });
+          })
+          .catch((error) => {
+            if (error.code === 401) {
+              window.location.href = "/";
+            }
+            console.error(error);
           });
-        });
 
         input_new_contact.value = "";
         new_contact_div.style.transform = null;
@@ -458,6 +472,10 @@ function add_contact_api() {
       }
     },
     erro(resposta) {
+      if (resposta.code === 401) {
+        window.location.href = "/";
+      }
+
       let msg = JSON.parse(resposta.data).msg;
       alert(msg);
       input_new_contact.value = "";
@@ -488,32 +506,6 @@ function put_status_contacts(users_on) {
         status_contact.classList.add("online");
       }
     });
-  });
-}
-
-function autentication(token) {
-  const id = get_url_id();
-
-  ajax({
-    url: "/user/" + id,
-    metodo: "get",
-    headers: [{ header: "Authorization", value: `Bearer ${token}` }],
-    sucesso(resposta) {
-      if (resposta.code === 200) {
-        const user = JSON.parse(resposta.data).user;
-        account_info.name = user.name;
-        account_info.number = user.number;
-        account_info.socket_id = user._id;
-
-        username_div.textContent = account_info.name;
-        window.account_info = account_info;
-        socket.emit("register", account_info);
-      } else {
-      }
-    },
-    erro(erro) {
-      console.log(erro);
-    },
   });
 }
 
@@ -803,6 +795,12 @@ function do_call() {
     room: number_room,
   };
 
+  window.current_call.type = "saida";
+  window.current_call.number = account_info.number;
+  window.current_call.roomName = number_room;
+  window.current_call.date = new Date();
+  window.current_call.video = false;
+
   socket.emit("calling", data);
 }
 
@@ -818,6 +816,12 @@ function do_videocall() {
     type: "video",
     room: number_room,
   };
+
+  window.current_call.type = "saida";
+  window.current_call.number = account_info.number;
+  window.current_call.roomName = number_room;
+  window.current_call.date = new Date();
+  window.current_call.video = true;
 
   socket.emit("calling", data);
 }
@@ -904,6 +908,9 @@ function persist_message_db(chat_id, text) {
       }
     },
     erro(erro) {
+      if (erro.code === 401) {
+        window.location.href = "/";
+      }
       const msg = JSON.parse(erro.data).msg;
       alert(msg);
     },
@@ -1177,33 +1184,40 @@ function open_chat_by_contact() {
   }
 
   // Cria um chat
-  createChatAPI(arrayMembers).then((resultado) => {
-    // Guarda o id do chat criado:
-    const newID = JSON.parse(resultado.data).id;
+  createChatAPI(arrayMembers)
+    .then((resultado) => {
+      // Guarda o id do chat criado:
+      const newID = JSON.parse(resultado.data).id;
 
-    // Atualiza a lista de chats no cache:
-    get_chat_list(token).then((resposta) => {
-      const resposta_data = JSON.parse(resposta.data);
+      // Atualiza a lista de chats no cache:
+      get_chat_list(token).then((resposta) => {
+        const resposta_data = JSON.parse(resposta.data);
 
-      chats_list = [...resposta_data.chatsList];
+        chats_list = [...resposta_data.chatsList];
 
-      load_chats_list();
+        load_chats_list();
 
-      load_header_chat(newID);
+        load_header_chat(newID);
 
-      load_messages_chat(cached_messages, newID);
+        load_messages_chat(cached_messages, newID);
 
-      load_input_chat(newID);
+        load_input_chat(newID);
 
-      chat_selected_color(newID);
+        chat_selected_color(newID);
 
-      close_side_contacts();
+        close_side_contacts();
 
-      chat_selected = newID;
+        chat_selected = newID;
 
-      put_status_contacts(online_user_list);
+        put_status_contacts(online_user_list);
+      });
+    })
+    .catch((error) => {
+      if (error.code === 401) {
+        window.location.href = "/";
+      }
+      console.error(error);
     });
-  });
 
   get_contact_selected(id);
 }
@@ -1332,6 +1346,9 @@ function get_database_messages(token, chat_id) {
       }
     },
     erro(erro) {
+      if (erro.code === 401) {
+        window.location.href = "/";
+      }
       const msg = JSON.parse(erro.data).msg;
       alert(msg);
     },
@@ -1385,12 +1402,6 @@ function find_index_cached_chat(chat_id) {
   }
 
   return chat;
-}
-
-function get_url_id() {
-  let id = window.location.pathname;
-
-  return id.split("home/")[1];
 }
 
 // !! FUNÇÕES DAS DATAS
@@ -1638,26 +1649,33 @@ function notification_bubble(id) {
 let hiddenPage = false;
 function notification_navigador(data) {
   if ("Notification" in window) {
-    Notification.requestPermission().then(function (result) {
-      if (result === "granted") {
-        let title = null;
-        let message = null;
+    Notification.requestPermission()
+      .then(function (result) {
+        if (result === "granted") {
+          let title = null;
+          let message = null;
 
-        if (data.sender_name) {
-          title = data.sender_name;
-        } else {
-          title = data.sender_number;
+          if (data.sender_name) {
+            title = data.sender_name;
+          } else {
+            title = data.sender_number;
+          }
+
+          if (data.text) {
+            message = data.text;
+          }
+
+          let notification = new Notification(title, {
+            body: message,
+          });
         }
-
-        if (data.text) {
-          message = data.text;
+      })
+      .catch((error) => {
+        if (error.code === 401) {
+          window.location.href = "/";
         }
-
-        let notification = new Notification(title, {
-          body: message,
-        });
-      }
-    });
+        console.error(error);
+      });
   }
 }
 
@@ -1863,35 +1881,40 @@ function add_contact_from_contacts_li(name, number, id) {
 }
 
 // ?=================================================================
-// Inicialização do programa
-autentication(token);
 
-get_contacts_list(token).then((resposta) => {
-  if (resposta.code === 200) {
-    const resposta_data = JSON.parse(resposta.data);
+get_contacts_list(token)
+  .then((resposta) => {
+    if (resposta.code === 200) {
+      const resposta_data = JSON.parse(resposta.data);
 
-    contacts_list = [];
-    contacts_list = [...resposta_data.contacts];
+      contacts_list = [];
+      contacts_list = [...resposta_data.contacts];
 
-    load_contacts_list();
-    put_status_contacts(online_user_list);
-  } else {
-    alert(resposta);
-    console.log(resposta);
-  }
+      load_contacts_list();
+      put_status_contacts(online_user_list);
+    } else {
+      alert(resposta);
+      console.log(resposta);
+    }
 
-  get_chat_list(token).then((resposta) => {
-    // Se não possuit chat
-    if (resposta.code === 204) return;
+    get_chat_list(token).then((resposta) => {
+      // Se não possuit chat
+      if (resposta.code === 204) return;
 
-    const resposta_data = JSON.parse(resposta.data);
-    chats_list = [...resposta_data.chatsList];
+      const resposta_data = JSON.parse(resposta.data);
+      chats_list = [...resposta_data.chatsList];
 
-    load_chats_list();
+      load_chats_list();
 
-    put_status_contacts(online_user_list);
+      put_status_contacts(online_user_list);
+    });
+  })
+  .catch((error) => {
+    if (error.code === 401) {
+      window.location.href = "/";
+    }
+    console.error(error);
   });
-});
 
 function form_ul_search_chat() {
   const containerChatlist = document.getElementById("container-list");
