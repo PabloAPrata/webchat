@@ -12,7 +12,7 @@ window.current_call = {
   duration: null,
   number: null,
   video: null,
-  date: null,
+  time: null,
   roomName: null,
 };
 
@@ -281,6 +281,8 @@ videocam_button.addEventListener("click", () => {
 // BOTÃO DESLIGAR A CHAMADA
 
 hangup_button.addEventListener("click", () => {
+  console.log(window.current_call);
+
   socket.emit("leave", roomName);
 
   if (user_video.srcObject) {
@@ -342,7 +344,7 @@ function stopwatch() {
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     display.textContent = timer;
-    window.current_call.time = timer;
+    window.current_call.duration = timer;
   }, 1000);
 
   hangup_button.addEventListener("click", () => {

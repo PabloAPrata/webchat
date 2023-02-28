@@ -33,3 +33,5 @@ export function ajax(config) {
 
   if (config.metodo == "get" || config.metodo == "delete") xhr.send();
 }
+
+window.ajax = ajax("param");

@@ -39,17 +39,18 @@ get_historic_list(token)
 
 function load_historic_list() {
   side_historic_call.innerHTML = "";
-  window.call_history.forEach((e) => {
-    // if (!e) return;
-
+  let list = window.call_history;
+  let inverted_list = list.reverse();
+  inverted_list.forEach((e) => {
     const { type, duration, number, time, accepted, video } = e;
 
-    // if (!type || !duration || !number || !time) {
-    //   return;
-    // }
-    console.log(e);
-
     const historic_li = document.createElement("li");
+    historic_li.setAttribute("type", type);
+    historic_li.setAttribute("duration", duration);
+    historic_li.setAttribute("number", number);
+    historic_li.setAttribute("time", time);
+    historic_li.setAttribute("accepted", accepted);
+    historic_li.setAttribute("video", video);
     const informations_historico = document.createElement("div");
     const call_info_historico = document.createElement("div");
     const buttons_historico = document.createElement("div");
@@ -69,8 +70,7 @@ function load_historic_list() {
 
     if (type === "Saída") {
       icon_icon_type.textContent = "call_made ";
-    }
-    if (type === "Entrada") {
+    } else if (type === "Entrada") {
       icon_icon_type.textContent = "call_received";
     } else {
       icon_icon_type.textContent = "phone_missed";
@@ -95,7 +95,7 @@ function load_historic_list() {
     icon_button.className = "material-icons";
 
     icon_button.textContent = "call";
-    number_element.textContent = number;
+    number_element.textContent = get_name_user_by_number(number);
     text_type.textContent = type;
     call_info_date.textContent = formatted_time(time);
     call_info_duration.textContent = duration;
@@ -178,7 +178,7 @@ function incoming_call_div(number, type, room) {
   rejectCallButton.onclick = () => {
     reject_call(number, type, room);
     add_call_to_local_history(
-      "Entrada",
+      "Não atendida",
       "00:00:00",
       number,
       new Date(),
@@ -223,11 +223,11 @@ function accept_call(number, type, room) {
     room: room,
   };
 
-  window.current_call.type = "entrada";
+  window.current_call.type = "Entrada";
   window.current_call.number = account_info.number;
   window.current_call.roomName = room;
-  window.current_call.date = new Date();
-  window.current_call.video = false;
+  window.current_call.time = new Date();
+  window.current_call.video = type === "video" ? true : false;
 
   socket.emit("accepted_call", data);
 }
@@ -244,7 +244,6 @@ function reject_call(number, type, room) {
 }
 
 socket.on("incoming_call", (data) => {
-  console.log(data);
   incoming_call_div(data.from, data.type, data.room);
 });
 
@@ -268,7 +267,6 @@ function add_call_to_local_history(
 ) {
   if (video === "video") video = true;
   else if (video === "audio") video = false;
-  else alert("erro : 000");
 
   console.log(window.call_history);
 
@@ -284,14 +282,11 @@ function add_call_to_local_history(
   // /calls/historic
   store_historic_db(data)
     .then((resposta) => {
-      console.log(resposta);
       if (resposta.code !== 201) {
         alert("Houve um erro");
       }
 
       const resposta_data = JSON.parse(resposta.data);
-
-      console.log(resposta_data);
 
       window.call_history = [...resposta_data.historic];
 
@@ -399,3 +394,16 @@ function formatted_time(time) {
 
   return time_date;
 }
+
+const hangup_button = document.getElementById("hangup_button");
+
+hangup_button.addEventListener("click", function () {
+  add_call_to_local_history(
+    window.current_call.type,
+    window.current_call.duration,
+    window.current_call.number,
+    new Date(),
+    true,
+    window.current_call.video
+  );
+});

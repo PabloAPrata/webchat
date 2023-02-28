@@ -795,10 +795,10 @@ function do_call() {
     room: number_room,
   };
 
-  window.current_call.type = "saida";
+  window.current_call.type = "Saída";
   window.current_call.number = account_info.number;
   window.current_call.roomName = number_room;
-  window.current_call.date = new Date();
+  window.current_call.time = new Date();
   window.current_call.video = false;
 
   socket.emit("calling", data);
@@ -817,10 +817,10 @@ function do_videocall() {
     room: number_room,
   };
 
-  window.current_call.type = "saida";
+  window.current_call.type = "Saída";
   window.current_call.number = account_info.number;
   window.current_call.roomName = number_room;
-  window.current_call.date = new Date();
+  window.current_call.time = new Date();
   window.current_call.video = true;
 
   socket.emit("calling", data);
