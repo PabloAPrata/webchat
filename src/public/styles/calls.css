@@ -28,6 +28,7 @@
 .callList-header h1 {
   font-weight: 400;
   margin: 0px 15px;
+  padding: 0px 10px;
   font-size: 21px;
 }
 
@@ -88,7 +89,7 @@
   border-radius: 100%;
   border: solid 2px white;
   box-shadow: rgb(0 0 0 / 66%) 0px 1px 1px;
-  margin-right: 1rem;
+  margin-right: 0.8rem;
 }
 
 .info_historico_number_type .icon_type .material-icons {
@@ -488,4 +489,8 @@
   position: absolute;
   top: 0;
   left: 0;
+}
+
+#main_historic h1 {
+  color: #494949;
 }

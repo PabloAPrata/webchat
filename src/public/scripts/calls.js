@@ -37,6 +37,86 @@ get_historic_list(token)
     console.error(error);
   });
 
+function createMainInfoDataCall(data) {
+  const divMain = document.createElement("div");
+  divMain.className = "main_info_data_call";
+
+  const divTitle = document.createElement("div");
+  divTitle.className = "title_data_call";
+  divTitle.textContent = "Informações da chamada";
+  divMain.appendChild(divTitle);
+
+  const divContainer = document.createElement("div");
+  divContainer.className = "container_info_data_call";
+
+  const divContact = document.createElement("div");
+  divContact.className = "contact";
+
+  const divInfoContact = document.createElement("div");
+  divInfoContact.className = "informations_historico_contact";
+
+  const img = document.createElement("img");
+  img.src = "../image/user-3296.svg";
+
+  const p = document.createElement("p");
+  p.textContent = get_name_user_by_number(data.number);
+
+  divInfoContact.appendChild(img);
+  divInfoContact.appendChild(p);
+
+  const divButtons = document.createElement("div");
+  divButtons.className = "container_buttons";
+
+  const button1 = document.createElement("button");
+  const span1 = document.createElement("span");
+  span1.className = "material-icons";
+  span1.textContent = "videocam";
+  button1.appendChild(span1);
+
+  const button2 = document.createElement("button");
+  const span2 = document.createElement("span");
+  span2.className = "material-icons";
+  span2.textContent = "phone";
+  button2.appendChild(span2);
+
+  divButtons.appendChild(button1);
+  divButtons.appendChild(button2);
+
+  divContact.appendChild(divInfoContact);
+  divContact.appendChild(divButtons);
+
+  divContainer.appendChild(divContact);
+
+  const divInfoCall = document.createElement("div");
+  divInfoCall.className = "info_call";
+
+  divContainer.appendChild(divInfoCall);
+
+  divMain.appendChild(divContainer);
+
+  return divMain;
+}
+
+function open_call_information() {
+  const div = this;
+  const data = {
+    type: div.getAttribute("type"),
+    duration: div.getAttribute("duration"),
+    number: div.getAttribute("number"),
+    time: div.getAttribute("time"),
+    accepted: div.getAttribute("accepted"),
+    video: div.getAttribute("video"),
+  };
+
+  console.log(data);
+
+  // Escrever a interface com os dados de DATA
+  const mainInfoDataCall = createMainInfoDataCall(data);
+  const main = document.getElementById("main_historic");
+  main.innerHTML = "";
+  main.appendChild(mainInfoDataCall);
+}
+
 function load_historic_list() {
   side_historic_call.innerHTML = "";
   let list = window.call_history;
@@ -45,12 +125,7 @@ function load_historic_list() {
     const { type, duration, number, time, accepted, video } = e;
 
     const historic_li = document.createElement("li");
-    historic_li.setAttribute("type", type);
-    historic_li.setAttribute("duration", duration);
-    historic_li.setAttribute("number", number);
-    historic_li.setAttribute("time", time);
-    historic_li.setAttribute("accepted", accepted);
-    historic_li.setAttribute("video", video);
+
     const informations_historico = document.createElement("div");
     const call_info_historico = document.createElement("div");
     const buttons_historico = document.createElement("div");
@@ -100,6 +175,9 @@ function load_historic_list() {
     call_info_date.textContent = formatted_time(time);
     call_info_duration.textContent = duration;
     text_button.textContent = "Ligar";
+    button.addEventListener("click", () => {
+      do_call(number);
+    });
 
     icon_type.appendChild(icon_icon_type);
     button.appendChild(icon_button);
@@ -117,7 +195,7 @@ function load_historic_list() {
     historic_li.appendChild(informations_historico);
     historic_li.appendChild(call_info_historico);
     historic_li.appendChild(buttons_historico);
-
+    // historic_li.onclick = open_call_information;
     number_element.style.marginBottom = "5px";
 
     side_historic_call.appendChild(historic_li);
@@ -268,8 +346,6 @@ function add_call_to_local_history(
   if (video === "video") video = true;
   else if (video === "audio") video = false;
 
-  console.log(window.call_history);
-
   const data = {
     type,
     duration,
@@ -407,3 +483,33 @@ hangup_button.addEventListener("click", function () {
     window.current_call.video
   );
 });
+
+function do_call(number) {
+  const contact_selected = removeNonNumbers(number);
+  console.log(
+    "🚀 ~ file: calls.js:490 ~ do_call ~ contact_selected:",
+    contact_selected
+  );
+  const my_number = removeNonNumbers(window.account_info.number);
+
+  const number_room = contact_selected + "@" + my_number;
+
+  const data = {
+    from: window.account_info.number,
+    to: number,
+    type: "audio",
+    room: number_room,
+  };
+
+  window.current_call.type = "Saída";
+  window.current_call.number = window.account_info.number;
+  window.current_call.roomName = number_room;
+  window.current_call.time = new Date();
+  window.current_call.video = false;
+
+  socket.emit("calling", data);
+}
+
+function removeNonNumbers(str) {
+  return str.replace(/[^0-9]/g, "");
+}
