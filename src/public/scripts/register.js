@@ -93,7 +93,6 @@ function applyPhoneMask(event) {
 function limiteCaracteres(event) {
   const nome = event.target.value;
 
-  console.log(nome);
   if (nome.length > 30) {
     alert("O nome excedeu o limite de 30 caracteres");
     event.target.value = "";
